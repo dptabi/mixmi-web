@@ -15,6 +15,15 @@ dist/
 .env.test.local
 .env.production.local
 
+# Firebase configuration with credentials
+firebase-config.ts
+admin/src/firebase-config.ts
+
+# API keys and secrets
+*.key
+*.pem
+service-account*.json
+
 # IDE
 .vscode/
 .idea/
