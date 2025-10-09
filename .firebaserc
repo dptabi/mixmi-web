@@ -1,0 +1,28 @@
+{
+  "projects": {
+    "default": "mixmi-web-prod",
+    "staging": "mixmi-web-staging"
+  },
+  "targets": {
+    "mixmi-web-prod": {
+      "hosting": {
+        "mixmi-admin": [
+          "admin-mixmi-web-prod"
+        ],
+        "mixmi-landing": [
+          "landing-mixmi-web-prod"
+        ]
+      }
+    },
+    "mixmi-web-staging": {
+      "hosting": {
+        "mixmi-admin": [
+          "admin-mixmi-web-staging"
+        ],
+        "mixmi-landing": [
+          "landing-mixmi-web-staging"
+        ]
+      }
+    }
+  }
+}
