@@ -67,25 +67,49 @@ const createTransporter = (config: EmailEnvConfig): Transporter =>
       pass: config.password
     },
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: true // SECURE: Validate SSL certificates to prevent MITM attacks
     }
   });
 
 const isValidEmail = (value?: string): value is string =>
   typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+// Allowed origins - remove localhost for production
 const allowedOrigins: Array<string> = [
   'https://mixmi.co',
   'https://mixmi-66529.web.app',
   'https://mixmi-66529.firebaseapp.com',
-  'http://localhost:4173'
+  // 'http://localhost:4173' // Only for local development - remove in production
 ];
+
+// Simple rate limiting store (in-memory, resets on function restart)
+// For production, consider using Redis or Firebase Realtime Database
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 5; // Max 5 requests per minute per IP
+
+const checkRateLimit = (ip: string): boolean => {
+  const now = Date.now();
+  const record = rateLimitStore.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+};
 
 export const sendWelcomeEmail = onRequest(
   {
     cors: allowedOrigins,
     region: 'us-central1',
-    invoker: 'public',
+    invoker: 'public', // TODO: Consider using Firebase App Check for additional security
     secrets: [
       emailSmtpHost,
       emailSmtpPort,
@@ -96,9 +120,24 @@ export const sendWelcomeEmail = onRequest(
     ]
   },
   async (request, response) => {
+    // CORS validation
+    const origin = request.get('origin');
+    if (origin && !allowedOrigins.includes(origin)) {
+      response.status(403).json({ error: 'Forbidden: Invalid origin' });
+      return;
+    }
+
     if (request.method !== 'POST') {
       response.set('Allow', 'POST');
       response.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+
+    // Rate limiting
+    const clientIp = request.ip || request.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(clientIp)) {
+      logger.warn(`[sendWelcomeEmail] Rate limit exceeded for IP: ${clientIp}`);
+      response.status(429).json({ error: 'Too many requests. Please try again later.' });
       return;
     }
 
@@ -118,9 +157,24 @@ export const sendWelcomeEmail = onRequest(
       const mailOptions = {
         from: `${emailConfig.senderName} <${emailConfig.senderEmail}>`,
         to: targetEmail,
-        subject: 'Welcome to Mixmi',
-        text: 'Thanks for joining Mixmi! We will keep you posted about upcoming launches.',
-        html: `<p>Thanks for joining Mixmi!</p><p>We will keep you posted about upcoming launches.</p>`
+        subject: 'Welcome to Mixmi 🎉',
+        text: `Hey there!
+
+Thanks for subscribing to Mixmi. You're officially on the inside now.
+
+We'll send you updates on new features, launches, and creative tools as they roll out—nothing spammy, just the good stuff.
+
+In the meantime, feel free to explore, get inspired, and start imagining what you'll create.
+
+Glad to have you with us.
+
+— The Mixmi Team`,
+        html: `<p>Hey there!</p>
+<p>Thanks for subscribing to Mixmi. You're officially on the inside now.</p>
+<p>We'll send you updates on new features, launches, and creative tools as they roll out—nothing spammy, just the good stuff.</p>
+<p>In the meantime, feel free to explore, get inspired, and start imagining what you'll create.</p>
+<p>Glad to have you with us.</p>
+<p>— The Mixmi Team</p>`
       };
       
       const info = await transporter.sendMail(mailOptions);

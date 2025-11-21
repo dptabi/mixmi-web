@@ -11,7 +11,7 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "engines": {
-    "node": "20"
+    "node": ">=20 <25"
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.9.0",

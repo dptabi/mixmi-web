@@ -91,7 +91,7 @@ if [ "$ENVIRONMENT" = "staging" ]; then
     PROJECT="mixmi-web-staging"
     print_info "Using staging project: $PROJECT"
 else
-    PROJECT="mixmi-web-prod"
+    PROJECT="mixmi-66529"
     print_info "Using production project: $PROJECT"
 fi
 

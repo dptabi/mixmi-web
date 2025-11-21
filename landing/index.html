@@ -23,8 +23,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="./assets/icons/mixmi_logo_v2_160px.svg">
-    <link rel="stylesheet" href="styles.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=2">
+    <link rel="alternate icon" href="./favicon.svg?v=2">
+    <link rel="apple-touch-icon" href="./assets/icons/mixmi_logo_v2_160px.svg">
+    <link rel="shortcut icon" href="./favicon.svg?v=2">
+    <link rel="stylesheet" href="styles.css?v=20241121">
 </head>
 <body>
     <!-- Header -->
@@ -38,12 +42,19 @@
                 height="46"
                 loading="lazy"
             />
-            <a href="https://admin.mixmi.co" class="sign-up-btn">Sign up</a>
+            <a href="https://admin.mixmi.co" class="sign-up-btn cta-button">Sign up</a>
         </div>
     </header>
 
     <!-- Hero Section -->
     <section class="hero">
+        <div class="hero-stickers" aria-hidden="true">
+            <img src="./assets/images/sticker_1.png" alt="" class="hero-sticker hero-sticker--vibe">
+            <img src="./assets/images/sticker_2.png" alt="" class="hero-sticker hero-sticker--wow">
+            <img src="./assets/images/sticker_3.png" alt="" class="hero-sticker hero-sticker--weird">
+            <img src="./assets/images/sticker_4.png" alt="" class="hero-sticker hero-sticker--energy">
+            <img src="./assets/images/sticker_5.png" alt="" class="hero-sticker hero-sticker--letsgo">
+        </div>
         <div class="email-section">
             <h1 class="hero-headline">
                 Show off your art, earn on the side!
@@ -53,7 +64,7 @@
                 <div class="email-form-fields">
                     <input
                         type="email"
-                        class="email-input"
+                        class="email-input elevated-surface"
                         placeholder="Enter your email"
                         name="email"
                         autocomplete="email"
@@ -61,7 +72,7 @@
                     >
                     <button
                         type="submit"
-                        class="email-submit-btn"
+                        class="email-submit-btn cta-button"
                         data-default-label="Notify me"
                         data-loading-label="Saving..."
                     >
@@ -82,7 +93,7 @@
             </div>
             
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card elevated-surface">
                     <img src="./assets/icons/feature_icon_1.svg" alt="Feature icon" class="feature-icon" />
                     <div class="feature-content">
                         <h3>Effortless Selling</h3>
@@ -90,7 +101,7 @@
                     </div>
                 </div>
                 
-                <div class="feature-card">
+                <div class="feature-card elevated-surface">
                     <img src="./assets/icons/feature_icon_2.svg" alt="Feature icon" class="feature-icon" />
                     <div class="feature-content">
                         <h3>Buyer-Controlled Printing</h3>
@@ -98,7 +109,7 @@
                     </div>
                 </div>
                 
-                <div class="feature-card">
+                <div class="feature-card elevated-surface">
                     <img src="./assets/icons/feature_icon_3.svg" alt="Feature icon" class="feature-icon" />
                     <div class="feature-content">
                         <h3>Creative Sticker Stacking</h3>
@@ -106,7 +117,7 @@
                     </div>
                 </div>
                 
-                <div class="feature-card">
+                <div class="feature-card elevated-surface">
                     <img src="./assets/icons/feature_icon_4.svg" alt="Feature icon" class="feature-icon" />
                     <div class="feature-content">
                         <h3>Simple, Powerful Platform</h3>
@@ -126,12 +137,12 @@
             </div>
             
             <div class="pricing-grid">
-                <div class="pricing-card">
+                <div class="pricing-card elevated-surface">
                     <h3>20%</h3>
                     <p>Per transaction when new customers find and buy from you through our discover marketplace.</p>
                 </div>
                 
-                <div class="pricing-card">
+                <div class="pricing-card elevated-surface">
                     <h3>15%</h3>
                     <p>Per transaction for all sales through your profile or direct links to your customers.</p>
                 </div>
@@ -169,7 +180,7 @@
                 <div class="email-form-fields">
                     <input
                         type="email"
-                        class="email-input"
+                        class="email-input elevated-surface"
                         placeholder="Enter your email"
                         name="email"
                         autocomplete="email"
@@ -177,7 +188,7 @@
                     >
                     <button
                         type="submit"
-                        class="email-submit-btn"
+                        class="email-submit-btn cta-button"
                         data-default-label="Notify me"
                         data-loading-label="Saving..."
                     >
@@ -198,7 +209,7 @@
                     <form class="footer-newsletter-form footer-newsletter-input-group" data-email-form="footer">
                         <input
                             type="email"
-                            class="footer-email-input"
+                            class="footer-email-input elevated-surface"
                             placeholder="Enter your email"
                             name="email"
                             autocomplete="email"
@@ -268,6 +279,16 @@
         import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
         import { getFirestore, addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 
+        // SECURITY NOTE: Firebase API keys are public by design for client-side apps.
+        // Security is enforced through:
+        // 1. Firestore Security Rules (see firebase/firestore.rules)
+        // 2. API Key Restrictions in Google Cloud Console (HTTP referrers)
+        // 3. Firebase App Check (recommended for production)
+        // 
+        // IMPORTANT: Configure API key restrictions in Google Cloud Console:
+        // - Application restrictions: HTTP referrers
+        // - Allowed referrers: https://mixmi.co/*, https://*.mixmi.co/*
+        // - API restrictions: Firebase APIs only
         const firebaseConfig = window.mixmiFirebaseConfig ?? {
             apiKey: 'AIzaSyBq2rEwN3RskKxrZKG2PW8ofxlFNZLPHgg',
             authDomain: 'mixmi-66529.firebaseapp.com',

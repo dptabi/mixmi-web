@@ -1,0 +1,32 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid || (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin'))",
+        ".write": "$uid === auth.uid || (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin'))",
+        ".validate": "newData.hasChildren(['id', 'email']) && newData.child('id').val() === $uid && newData.child('email').isString() && newData.child('email').val().length >= 5 && newData.child('email').val().length <= 100",
+        "id": {
+          ".validate": "newData.val() === $uid"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 100"
+        },
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 50"
+        },
+        "role": {
+          ".validate": "$uid === auth.uid ? newData.val() === data.child('role').val() : (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin'))"
+        },
+        "createdAt": {
+          ".validate": "newData.val() === data.val() || !data.exists()"
+        },
+        "$other": {
+          ".validate": true
+        }
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}
+
