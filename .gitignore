@@ -23,6 +23,7 @@ admin/src/firebase-config.ts
 *.key
 *.pem
 service-account*.json
+*-firebase-adminsdk-*.json
 
 # IDE
 .vscode/

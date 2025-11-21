@@ -189,6 +189,7 @@ firebase deploy --only hosting:admin-mixmi-web-prod
 - Check the main [README.md](../README.md) for general setup
 - Review [docs/FIXES.md](../docs/FIXES.md) for troubleshooting
 - See [docs/SETUP.md](../docs/SETUP.md) for detailed configuration
+- Read [docs/DEBUGGING_GUIDE.md](../docs/DEBUGGING_GUIDE.md) for debugging strategies
 
 ## Learn More
 

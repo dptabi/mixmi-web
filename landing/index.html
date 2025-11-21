@@ -3,380 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mixmi - Custom Apparel & Merchandise</title>
-    <meta name="description" content="Mixmi offers custom apparel and merchandise solutions for your brand. Professional quality, fast delivery, and exceptional service.">
-    <meta name="keywords" content="custom apparel, merchandise, t-shirts, hoodies, bags, printing, branding">
+    <title>Mixmi - Mixmi</title>
+    <meta name="description" content="Mixmi is a clean, powerful e-commerce platform built for creators and buyers alike. Sell your stickers without worrying about printing.">
+    <meta name="keywords" content="sticker marketplace, e-commerce, custom stickers, digital stickers, print-on-demand">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://mixmi.co/">
-    <meta property="og:title" content="Mixmi - Custom Apparel & Merchandise">
-    <meta property="og:description" content="Professional custom apparel and merchandise solutions for your brand.">
+    <meta property="og:title" content="Mixmi - Mixmi">
+    <meta property="og:description" content="Sell your stickers without worrying about printing — buyers choose where and how to print them.">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://mixmi.co/">
-    <meta property="twitter:title" content="Mixmi - Custom Apparel & Merchandise">
-    <meta property="twitter:description" content="Professional custom apparel and merchandise solutions for your brand.">
+    <meta property="twitter:title" content="Mixmi - Mixmi">
+    <meta property="twitter:description" content="Mix, match, and stack any stickers to create unique combinations.">
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Header */
-        .header {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: #667eea;
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            padding: 120px 20px 80px;
-            margin-top: 80px;
-        }
-        
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-        
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        
-        .btn-primary {
-            background: #10b981;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-        
-        .btn-secondary:hover {
-            background: white;
-            color: #667eea;
-        }
-        
-        /* Features Section */
-        .features {
-            padding: 80px 20px;
-            background: #f8fafc;
-        }
-        
-        .features h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #1f2937;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-        
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.3s;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        
-        .feature-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #1f2937;
-        }
-        
-        .feature-card p {
-            color: #6b7280;
-            line-height: 1.6;
-        }
-        
-        /* Services Section */
-        .services {
-            padding: 80px 20px;
-            background: white;
-        }
-        
-        .services h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #1f2937;
-        }
-        
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-        
-        .service-item {
-            text-align: center;
-            padding: 1.5rem;
-        }
-        
-        .service-item h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            color: #1f2937;
-        }
-        
-        .service-item p {
-            color: #6b7280;
-        }
-        
-        /* Footer */
-        .footer {
-            background: #1f2937;
-            color: white;
-            text-align: center;
-            padding: 2rem 20px;
-        }
-        
-        .footer p {
-            margin-bottom: 1rem;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .footer-links a {
-            color: #9ca3af;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer-links a:hover {
-            color: white;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .features-grid,
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <!-- Google Fonts - Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="./assets/icons/mixmi_logo_v2_160px.svg">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
-        <nav class="nav container">
-            <div class="logo">Mixmi</div>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+        <div class="header-content">
+            <img
+                src="./assets/icons/mixmi_logo_v2_160px.svg"
+                alt="Mixmi logo"
+                class="logo"
+                width="46"
+                height="46"
+                loading="lazy"
+            />
+            <a href="https://admin.mixmi.co" class="sign-up-btn">Sign up</a>
+        </div>
     </header>
 
     <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <h1>Custom Apparel & Merchandise</h1>
-            <p>Professional quality custom apparel and merchandise solutions for your brand. Fast delivery, exceptional service, and unbeatable quality.</p>
-            <div class="cta-buttons">
-                <a href="https://admin.mixmi.co" class="btn btn-primary">Admin Dashboard</a>
-                <a href="#services" class="btn btn-secondary">Our Services</a>
-            </div>
+    <section class="hero">
+        <div class="email-section">
+            <h1 class="hero-headline">
+                Show off your art, earn on the side!
+            </h1>
+            <p class="email-text">Add your email to get latest update.</p>
+            <form class="email-form" data-email-form="hero">
+                <div class="email-form-fields">
+                    <input
+                        type="email"
+                        class="email-input"
+                        placeholder="Enter your email"
+                        name="email"
+                        autocomplete="email"
+                        required
+                    >
+                    <button
+                        type="submit"
+                        class="email-submit-btn"
+                        data-default-label="Notify me"
+                        data-loading-label="Saving..."
+                    >
+                        Notify me
+                    </button>
+                </div>
+                <p class="email-status" data-email-status></p>
+            </form>
         </div>
     </section>
 
     <!-- Features Section -->
     <section class="features">
-        <div class="container">
-            <h2>Why Choose Mixmi?</h2>
+        <div class="features-content">
+            <div class="features-header">
+                <h2>Product features</h2>
+                <p>Mixmi is a clean, powerful e-commerce platform built for creators and buyers alike. Sell your stickers without worrying about printing — buyers choose where and how to print them. And here's the twist: buyers can mix, match, and stack any stickers they want to create their own unique combinations.</p>
+            </div>
+            
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
-                    <h3>Custom Design</h3>
-                    <p>Bring your vision to life with our professional design services and high-quality printing techniques.</p>
+                    <img src="./assets/icons/feature_icon_1.svg" alt="Feature icon" class="feature-icon" />
+                    <div class="feature-content">
+                        <h3>Effortless Selling</h3>
+                        <p>Upload your stickers and start selling right away. No need to handle printing or fulfillment — Mixmi takes care of the setup so you can focus on creating.</p>
+                    </div>
                 </div>
+                
                 <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Fast Delivery</h3>
-                    <p>Quick turnaround times without compromising on quality. Get your orders delivered on time, every time.</p>
+                    <img src="./assets/icons/feature_icon_2.svg" alt="Feature icon" class="feature-icon" />
+                    <div class="feature-content">
+                        <h3>Buyer-Controlled Printing</h3>
+                        <p>Buyers choose where and how their stickers get printed. You don't worry about logistics; they get full flexibility.</p>
+                    </div>
                 </div>
+                
                 <div class="feature-card">
-                    <div class="feature-icon">🏆</div>
-                    <h3>Premium Quality</h3>
-                    <p>We use only the finest materials and state-of-the-art printing technology for lasting results.</p>
+                    <img src="./assets/icons/feature_icon_3.svg" alt="Feature icon" class="feature-icon" />
+                    <div class="feature-content">
+                        <h3>Creative Sticker Stacking</h3>
+                        <p>Unlike traditional marketplaces, Mixmi lets buyers mix, match, and stack multiple stickers into one custom design. Every purchase becomes a personal creation.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <img src="./assets/icons/feature_icon_4.svg" alt="Feature icon" class="feature-icon" />
+                    <div class="feature-content">
+                        <h3>Simple, Powerful Platform</h3>
+                        <p>Built for ease and performance, Mixmi combines a smooth shopping experience with tools that empower both artists and buyers.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Services Section -->
-    <section class="services" id="services">
-        <div class="container">
-            <h2>Our Services</h2>
-            <div class="services-grid">
-                <div class="service-item">
-                    <h3>👕 Custom T-Shirts</h3>
-                    <p>High-quality t-shirts with your custom designs and branding.</p>
+    <!-- Pricing Section -->
+    <section class="pricing">
+        <div class="pricing-content">
+            <div class="pricing-header">
+                <h2>Pricing</h2>
+                <p>We believe in transparent pricing that helps you grow. No hidden fees, no monthly charges.</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>20%</h3>
+                    <p>Per transaction when new customers find and buy from you through our discover marketplace.</p>
                 </div>
-                <div class="service-item">
-                    <h3>🧥 Hoodies & Sweatshirts</h3>
-                    <p>Comfortable and stylish hoodies perfect for any season.</p>
-                </div>
-                <div class="service-item">
-                    <h3>🎒 Bags & Accessories</h3>
-                    <p>Custom bags, totes, and accessories for your brand.</p>
-                </div>
-                <div class="service-item">
-                    <h3>👶 Kids Apparel</h3>
-                    <p>Specialized children's clothing with safe, comfortable materials.</p>
-                </div>
-                <div class="service-item">
-                    <h3>💼 Corporate Merchandise</h3>
-                    <p>Professional corporate gifts and promotional items.</p>
-                </div>
-                <div class="service-item">
-                    <h3>🎨 Design Services</h3>
-                    <p>Professional design assistance for your custom projects.</p>
+                
+                <div class="pricing-card">
+                    <h3>15%</h3>
+                    <p>Per transaction for all sales through your profile or direct links to your customers.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="cta-banner">
+        <div class="cta-banner-content">
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+            <span class="cta-banner-text">START FOR FREE</span>
+            <div class="cta-banner-dot"></div>
+        </div>
+    </section>
+
+    <!-- Subscribe Section -->
+    <section class="subscribe">
+        <div class="email-section">
+            <h2 class="subscribe-headline">Show off your art, earn on the side!</h2>
+            <form class="email-form" data-email-form="subscribe">
+                <div class="email-form-fields">
+                    <input
+                        type="email"
+                        class="email-input"
+                        placeholder="Enter your email"
+                        name="email"
+                        autocomplete="email"
+                        required
+                    >
+                    <button
+                        type="submit"
+                        class="email-submit-btn"
+                        data-default-label="Notify me"
+                        data-loading-label="Saving..."
+                    >
+                        Notify me
+                    </button>
+                </div>
+                <p class="email-status" data-email-status></p>
+            </form>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-links">
-                <a href="#home">Home</a>
-                <a href="#services">Services</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-                <a href="https://admin.mixmi.co">Admin</a>
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-newsletter">
+                    <h2>Subscribe to get the latest update!</h2>
+                    <form class="footer-newsletter-form footer-newsletter-input-group" data-email-form="footer">
+                        <input
+                            type="email"
+                            class="footer-email-input"
+                            placeholder="Enter your email"
+                            name="email"
+                            autocomplete="email"
+                            required
+                        >
+                        <button
+                            type="submit"
+                            class="newsletter-btn"
+                            aria-label="Submit email"
+                        >
+                            <img
+                                src="./assets/icons/arrow.svg"
+                                alt="Send"
+                                class="newsletter-arrow"
+                                width="20"
+                                height="23"
+                                loading="lazy"
+                            />
+                        </button>
+                    </form>
+                    <p class="email-status footer-email-status" data-email-status></p>
+                </div>
+                
+                <div class="footer-copyright">
+                <img
+                    src="./assets/icons/mixmi_logo_v2_160px.svg"
+                    alt="Mixmi logo"
+                    class="footer-logo"
+                    width="33"
+                    height="32"
+                    loading="lazy"
+                />
+                    <span class="footer-copyright-text">Ⓒ mixmi.co</span>
+                </div>
             </div>
-            <p>&copy; 2024 Mixmi. All rights reserved.</p>
-            <p>Professional custom apparel and merchandise solutions.</p>
+            
+            <div class="footer-links">
+                <div class="footer-middle">
+                    <div class="footer-links-column">
+                        <a href="#" class="footer-link-title">Customer Service</a>
+                        <a href="#" class="footer-link">FAQs Support</a>
+                        <a href="#" class="footer-link">Contact Us</a>
+                    </div>
+                    <div class="footer-links-column">
+                        <a href="#" class="footer-link-title">Terms and Policy</a>
+                        <a href="#" class="footer-link">Privacy Policy</a>
+                        <a href="#" class="footer-link">Return and Exchange Policy</a>
+                        <a href="#" class="footer-link">Terms of Service</a>
+                    </div>
+                </div>
+                <div class="footer-social">
+                    <a href="#" class="footer-social-icon">
+                        <img src="./assets/icons/fb.svg" alt="Mixmi on Facebook" />
+                    </a>
+                    <a href="#" class="footer-social-icon">
+                        <img src="./assets/icons/x.svg" alt="Mixmi on X" />
+                    </a>
+                    <a href="https://www.instagram.com/mixmi.sm/" class="footer-social-icon">
+                        <img src="./assets/icons/ig.svg" alt="Mixmi on Instagram" />
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
 
+    <script type="module">
+        import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
+        import { getFirestore, addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+
+        const firebaseConfig = window.mixmiFirebaseConfig ?? {
+            apiKey: 'AIzaSyBq2rEwN3RskKxrZKG2PW8ofxlFNZLPHgg',
+            authDomain: 'mixmi-66529.firebaseapp.com',
+            databaseURL: 'https://mixmi-66529-default-rtdb.firebaseio.com',
+            projectId: 'mixmi-66529',
+            storageBucket: 'mixmi-66529.firebasestorage.app',
+            messagingSenderId: '563692319306',
+            appId: '1:563692319306:web:1d851394a9d61583e8ecb3',
+            measurementId: 'G-M8PXN0TQYY'
+        };
+
+        const apps = getApps();
+        const firebaseApp = apps.length ? apps[0] : initializeApp(firebaseConfig);
+        const firestore = getFirestore(firebaseApp);
+        const emailForms = document.querySelectorAll('[data-email-form]');
+
+        const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+        const updateStatus = (element, message, isError) => {
+            if (!element) {
+                return;
+            }
+
+            element.textContent = message;
+            element.classList.toggle('is-error', isError);
+            element.classList.toggle('is-success', !isError);
+        };
+
+        const setButtonState = (button, isLoading) => {
+            if (!button) {
+                return;
+            }
+
+            button.disabled = isLoading;
+            const defaultLabel = button.dataset.defaultLabel;
+            const loadingLabel = button.dataset.loadingLabel;
+
+            if (defaultLabel && loadingLabel) {
+                button.textContent = isLoading ? loadingLabel : defaultLabel;
+            }
+        };
+
+        const sendWelcomeEmail = async (email) => {
+            try {
+                await fetch('/api/send-welcome', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+            } catch (error) {
+                console.error('Failed to trigger welcome email', error);
+            }
+        };
+
+        emailForms.forEach((form) => {
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const emailInput = form.querySelector('input[type="email"]');
+                const statusElement = form.querySelector('[data-email-status]');
+                const submitButton = form.querySelector('[type="submit"]');
+                const emailValue = emailInput?.value.trim();
+
+                if (!emailInput || !emailValue || !isValidEmail(emailValue)) {
+                    updateStatus(statusElement, 'Please enter a valid email.', true);
+                    return;
+                }
+
+                setButtonState(submitButton, true);
+                emailInput.disabled = true;
+                updateStatus(statusElement, 'Saving your email...', false);
+
+                try {
+                    await addDoc(collection(firestore, 'newsletter_signups'), {
+                        email: emailValue,
+                        source: form.dataset.emailForm,
+                        createdAt: serverTimestamp()
+                    });
+                    sendWelcomeEmail(emailValue);
+                    updateStatus(statusElement, 'Thanks! You are subscribed.', false);
+                    form.reset();
+                } catch (error) {
+                    console.error('Failed to save email', error);
+                    updateStatus(statusElement, 'Sorry, something went wrong. Please try again.', true);
+                } finally {
+                    setButtonState(submitButton, false);
+                    emailInput.disabled = false;
+                }
+            });
+        });
+    </script>
+
     <script>
-        // Smooth scrolling for anchor links
+        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -388,18 +372,6 @@
                     });
                 }
             });
-        });
-
-        // Add scroll effect to header
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('.header');
-            if (window.scrollY > 100) {
-                header.style.background = 'rgba(255, 255, 255, 0.95)';
-                header.style.backdropFilter = 'blur(10px)';
-            } else {
-                header.style.background = 'white';
-                header.style.backdropFilter = 'none';
-            }
         });
     </script>
 </body>

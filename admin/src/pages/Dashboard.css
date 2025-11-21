@@ -1,58 +1,28 @@
 /* Dashboard Styles */
 .dashboard-container {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  background: #f8fafc;
+  background: #F8FAFC;
   min-height: 100vh;
 }
 
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.period-selector {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .period-select {
-  padding: 8px 16px;
-  border: 2px solid #e2e8f0;
+  padding: 10px 16px;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   background: white;
   font-size: 14px;
   font-weight: 500;
-  color: #475569;
+  color: #1E293B;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .period-select:hover {
-  border-color: #3b82f6;
+  border-color: #3B82F6;
 }
 
 .period-select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #3B82F6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -92,6 +62,7 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
   margin-bottom: 32px;
+  padding: 0 32px;
 }
 
 .metric-card {
@@ -169,6 +140,7 @@
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 24px;
   margin-bottom: 32px;
+  padding: 0 32px;
 }
 
 .analytics-card {
@@ -291,8 +263,8 @@
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  margin-bottom: 32px;
+  border: 1px solid #E2E8F0;
+  margin: 0 32px 32px 32px;
 }
 
 .recent-orders-card h3 {
@@ -398,9 +370,10 @@
   padding: 16px;
   background: white;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
+  border: 1px solid #E2E8F0;
+  color: #64748B;
   font-size: 14px;
+  margin: 0 32px 32px 32px;
 }
 
 .pulse-dot {
@@ -430,14 +403,12 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .dashboard-container {
-    padding: 16px;
-  }
-  
-  .dashboard-header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+  .metrics-grid,
+  .analytics-grid,
+  .recent-orders-card,
+  .realtime-indicator {
+    margin-left: 16px;
+    margin-right: 16px;
   }
   
   .metrics-grid {

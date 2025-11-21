@@ -221,6 +221,16 @@ service cloud.firestore {
     match /cart_items/{cartItemId} {
       allow read, write: if isAuthenticated();
     }
+
+    match /newsletter_signups/{signupId} {
+      allow read: if isAdmin();
+      allow create: if hasValidFields(['email', 'createdAt'], ['source'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() >= 5
+        && request.resource.data.email.size() <= 100
+        && request.resource.data.createdAt is timestamp
+        && (request.resource.data.source == null || request.resource.data.source is string);
+    }
     
     // Default deny rule for any other collections
     match /{document=**} {

@@ -113,6 +113,8 @@ For detailed information, see the following documentation files:
 - **[Domain Setup](docs/DOMAIN_SETUP.md)** - Custom domain configuration
 - **[Security](docs/SECURITY.md)** - Security implementation details
 - **[Analytics](docs/ANALYTICS.md)** - Analytics and monitoring setup
+- **[Debugging Guide](docs/DEBUGGING_GUIDE.md)** - Debugging strategies and tips
+- **[Debug Quick Reference](docs/DEBUG_QUICK_REFERENCE.md)** - Quick debugging commands
 - **[Troubleshooting](docs/FIXES.md)** - Common issues and solutions
 
 ## Environment URLs
@@ -179,6 +181,39 @@ Deploy to different environments using the deployment script:
 # Deploy only landing to production
 ./scripts/deploy.sh --env prod --target landing
 ```
+
+## Debugging
+
+### Quick Debug Check
+
+Run the debug helper script to check your setup:
+
+```bash
+./scripts/debug-admin.sh
+```
+
+This will verify:
+- Node.js and npm installation
+- Firebase CLI setup
+- Dependencies installation
+- Firebase configuration
+- TypeScript errors
+- Port availability
+
+### Start Development Server
+
+```bash
+cd admin
+npm start
+```
+
+Open `http://localhost:3000` in your browser and press `F12` to open Developer Tools.
+
+### Debugging Resources
+
+- **[Full Debugging Guide](docs/DEBUGGING_GUIDE.md)** - Comprehensive debugging strategies
+- **[Quick Reference](docs/DEBUG_QUICK_REFERENCE.md)** - Common commands and shortcuts
+- **[Troubleshooting](docs/FIXES.md)** - Solutions to common issues
 
 ## Contributing
 

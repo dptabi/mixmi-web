@@ -13,6 +13,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
+import TopBar from '../components/TopBar';
 import './Orders.css';
 
 interface Order {
@@ -457,37 +458,24 @@ export default function Orders() {
 
   return (
     <div className="orders-container">
-      <div className="orders-header">
-        <div className="header-left">
-          <h1>📦 Order Management</h1>
-          <div className="stats-row">
-            <div className="stat-item">
-              <span className="stat-label">Total Orders:</span>
-              <span className="stat-value">{orders.length}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Paid Revenue:</span>
-              <span className="stat-value">₱{getTotalRevenue().toFixed(2)}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Pending Revenue:</span>
-              <span className="stat-value">₱{getPendingRevenue().toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-        <div className="header-actions">
-          <button 
-            onClick={fixExistingOrders}
-            className="fix-orders-button"
-            title="Fix existing orders to match new status logic"
-          >
-            🔧 Fix Existing Orders
-          </button>
-          <button onClick={loadOrders} className="refresh-button">
-            🔄 Refresh
-          </button>
-        </div>
-      </div>
+      <TopBar
+        title="Order Management"
+        subtitle={`${orders.length} total orders • ₱${getTotalRevenue().toFixed(2)} paid revenue • ₱${getPendingRevenue().toFixed(2)} pending`}
+        actions={
+          <>
+            <button 
+              onClick={fixExistingOrders}
+              className="btn-outline"
+              title="Fix existing orders to match new status logic"
+            >
+              🔧 Fix Orders
+            </button>
+            <button onClick={loadOrders} className="btn-primary">
+              🔄 Refresh
+            </button>
+          </>
+        }
+      />
 
       <div className="orders-toolbar">
         <input

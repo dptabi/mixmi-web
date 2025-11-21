@@ -3,11 +3,14 @@ import { useAuth } from './hooks/useAuth';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
+import Users from './pages/Users';
+import Sidebar from './components/Sidebar';
 import './App.css';
 
 function App() {
   const { user, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   if (loading) {
     return (
@@ -24,38 +27,25 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="header-content">
-          <h1>🎨 Mixmi Admin</h1>
-          <div className="header-user">
-            <span>{user.email}</span>
-            <button onClick={logout} className="logout-button">
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <nav className="app-nav">
-        <div className="nav-content">
-          <button 
-            className={`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            📊 Dashboard
-          </button>
-          <button 
-            className={`nav-button ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => setActiveTab('orders')}
-          >
-            📦 Orders
-          </button>
-        </div>
-      </nav>
-
-      <main className="app-main">
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        user={user}
+        onLogout={logout}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
+      
+      <main className={`app-main ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'orders' && <Orders />}
+        {activeTab === 'users' && <Users />}
+        {activeTab === 'analytics' && (
+          <div className="coming-soon">
+            <h2>📈 Analytics</h2>
+            <p>Advanced analytics and reporting coming soon!</p>
+          </div>
+        )}
       </main>
     </div>
   );

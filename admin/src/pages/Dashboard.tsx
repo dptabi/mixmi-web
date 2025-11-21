@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import TopBar from '../components/TopBar';
 import './Dashboard.css';
 
 interface Order {
@@ -229,9 +230,10 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>📊 Analytics Dashboard</h1>
-        <div className="period-selector">
+      <TopBar 
+        title="Analytics Dashboard"
+        subtitle="Real-time overview of your business metrics"
+        actions={
           <select 
             value={selectedPeriod} 
             onChange={(e) => setSelectedPeriod(e.target.value)}
@@ -242,8 +244,8 @@ export default function Dashboard() {
             <option value="90d">Last 90 days</option>
             <option value="1y">Last year</option>
           </select>
-        </div>
-      </div>
+        }
+      />
 
       {/* Key Metrics */}
       <div className="metrics-grid">

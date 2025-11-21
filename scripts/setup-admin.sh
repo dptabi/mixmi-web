@@ -64,3 +64,9 @@ echo "Next steps:"
 echo "1. Configure Firebase settings in src/firebase-config.ts"
 echo "2. Run 'npm start' to start the development server"
 echo "3. Run 'firebase deploy' to deploy to production"
+
+
+
+
+
+

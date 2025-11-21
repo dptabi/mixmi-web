@@ -17,6 +17,25 @@ The landing page is a static HTML page designed for:
 - SEO optimization with meta tags
 - Performance optimization for fast loading
 - Mobile-first responsive design
+- Modern 2025 design system
+
+### Design System
+The landing page uses a comprehensive design system with:
+- **CSS Variables**: Centralized colors, typography, spacing, and shadows
+- **Typography**: Inter font family with responsive sizing
+- **Colors**: Gradient primary palette with semantic color tokens
+- **Spacing**: Consistent 8px grid system
+- **Responsive Breakpoints**: Mobile-first design (480px, 768px, 968px)
+- **Animations**: Smooth transitions and scroll-triggered animations
+
+### Design Features
+- Hero section with gradient background
+- Feature cards with hover effects
+- Service grid layout
+- Statistics counter section
+- Smooth scrolling navigation
+- Sticky header with scroll effects
+- Intersection Observer animations
 
 ### Contact Features
 - Contact forms for user inquiries
@@ -36,14 +55,34 @@ The landing page is a static HTML page designed for:
 landing/
 ├── index.html              # Main landing page
 ├── firebase.json          # Firebase hosting configuration
+├── preview.sh             # Local preview script
+├── assets/                # Static assets
+│   ├── images/            # Image files
+│   ├── icons/             # SVG icons
+│   └── fonts/             # Custom fonts
 └── README.md              # This file
 ```
 
 ## Quick Start
 
-### Local Development
+### Local Preview (Recommended)
 
-The landing page is static and can be served locally:
+The easiest way to preview the landing page locally:
+
+```bash
+cd landing
+./preview.sh
+```
+
+This will automatically:
+- Start a local web server on port 8080
+- Open the preview in your browser
+- Handle port conflicts automatically
+- Stop the server with Ctrl+C
+
+### Alternative Local Development Methods
+
+If you prefer manual control:
 
 ```bash
 # Using Python (if installed)
@@ -55,10 +94,10 @@ cd landing
 npx serve -s . -l 8080
 
 # Using Firebase CLI
-firebase serve --only hosting:landing-mixmi-web-prod
+firebase serve --only hosting:mixmi-landing
 ```
 
-Access the page at `http://localhost:8080`
+Access the page at `http://localhost:8080` or the displayed port
 
 ### Production Deployment
 
@@ -117,6 +156,49 @@ See [docs/DOMAIN_SETUP.md](../docs/DOMAIN_SETUP.md) for detailed domain configur
 3. Deploy to staging for review
 4. Deploy to production
 
+### Figma Integration
+
+The landing page supports integration with Figma designs using the Figma MCP server:
+
+**Figma Design**: [Mixmi 2025](https://www.figma.com/design/kCEQbHbIRqbDrYDGAhawR4/Mixmi-2025?node-id=5-47355&m=dev)
+
+#### Setting Up Figma MCP Sync
+
+1. **Enable Figma MCP Server**:
+   - Open Figma desktop app
+   - Open your design file in Dev Mode
+   - Enable the MCP server (typically at `http://127.0.0.1:3845/mcp`)
+
+2. **Extract Design System**:
+   - Use MCP tools to extract colors, typography, spacing
+   - Export assets (images, icons, logos)
+   - Generate design tokens
+
+3. **Sync Design Updates**:
+   - Update design in Figma
+   - Use MCP to extract changes
+   - Apply CSS variable updates in `index.html`
+   - Test and deploy
+
+#### Design Tokens Location
+
+All design tokens are defined at the top of `index.html` in the `:root` CSS variables section:
+
+```css
+:root {
+    /* Colors */
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-color: #667eea;
+    
+    /* Typography */
+    --font-family: 'Inter', 'Segoe UI', sans-serif;
+    
+    /* Spacing & More... */
+}
+```
+
+**Note**: To sync with actual Figma designs, ensure the Figma MCP server is running and properly configured in your environment.
+
 ### SEO Features
 
 The landing page includes:
@@ -128,11 +210,15 @@ The landing page includes:
 
 ### Performance Optimization
 
-- Minified HTML
-- Optimized images
-- Efficient CSS
-- CDN delivery via Firebase
-- Browser caching headers
+- **CSS Variables**: Optimized styling with CSS custom properties
+- **Google Fonts**: Preconnect and optimized font loading
+- **Intersection Observer**: Lazy-load animations for better performance
+- **Responsive Images**: Optimized for all screen sizes
+- **Efficient CSS**: Minimal and scoped styles
+- **CDN Delivery**: Fast global distribution via Firebase
+- **Browser Caching**: Proper cache headers for assets
+- **Smooth Scrolling**: Native browser scroll behavior
+- **Minimal JavaScript**: Only essential interactions
 
 ## Deployment
 

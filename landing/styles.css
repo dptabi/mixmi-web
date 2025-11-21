@@ -1,0 +1,930 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #F1F1F1;
+    color: #000;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Header */
+.header {
+    width: 100%;
+    height: 72px;
+    padding: 12px clamp(20px, 4vw, 60px);
+    background: #D0CDF5;
+    border: 1px solid #000;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    width: 46px;
+    height: 46px;
+    display: block;
+    object-fit: contain;
+}
+
+.sign-up-btn {
+    padding: 10px 22px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 12px;
+    color: #000;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.sign-up-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #000;
+}
+
+/* Hero Section */
+.hero {
+    padding: 100px 0;
+    text-align: center;
+    min-height: 820px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 35px;
+    background: #F1F1F1;
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.hero-images {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    align-items: center;
+}
+
+.hero-headline {
+    width: 51.46556rem;
+    max-width: 90vw;
+    margin: 0 auto;
+    color: #000;
+    text-align: center;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 1);
+    -webkit-text-stroke-width: 6px;
+    -webkit-text-stroke-color: #fff;
+    -webkit-text-stroke-linejoin: round;
+    paint-order: stroke fill;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 4.75rem;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 113%;
+    letter-spacing: 0.0225rem;
+}
+
+.hero-image {
+    width: 100%;
+    max-width: 730px;
+    height: auto;
+    background: #ddd;
+}
+
+.email-section {
+    width: 100%;
+    max-width: 860px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+}
+
+.email-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.email-form-fields {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.email-submit-btn {
+    padding: 17px 32px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+}
+
+.email-submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #000;
+}
+
+.email-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.email-status {
+    min-height: 22px;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    color: #000;
+}
+
+.email-status.is-error {
+    color: #842029;
+}
+
+.email-status.is-success {
+    color: #0f5132;
+}
+
+.footer-email-status {
+    text-align: left;
+}
+
+.email-line {
+    width: 859px;
+    height: 63px;
+    background: #000;
+    outline: 3px solid #fff;
+    outline-offset: -3px;
+    position: relative;
+}
+
+.email-line::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    outline: 4px solid #000;
+    outline-offset: -4px;
+}
+
+.email-text {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 0.36px;
+    text-align: center;
+}
+
+.email-input {
+    width: 340px;
+    padding: 17px 16px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 12px;
+    box-shadow: none;
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.email-input:focus {
+    outline: none;
+    color: #000;
+}
+
+.email-input:hover,
+.email-input:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #000;
+}
+
+.rotated-images {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.rotate-image {
+    width: auto;
+    height: auto;
+    background: #ddd;
+}
+
+.rotate--7 {
+    transform: rotate(-7deg);
+}
+
+.rotate-13 {
+    transform: rotate(13deg);
+}
+
+.rotate--13 {
+    transform: rotate(-13deg);
+}
+
+.rotate--19 {
+    transform: rotate(-19deg);
+}
+
+/* Features Section */
+.features {
+    width: 100%;
+    padding: 160px 139px 360px;
+    background: #D0CDF5;
+    border-top-left-radius: 36px;
+    border-top-right-radius: 36px;
+    border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.features-content {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+}
+
+.features-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.features-header h2 {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 63px;
+    color: #000;
+}
+
+.features-header p {
+    width: 773px;
+    max-width: 100%;
+    margin: 0 auto;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 24px;
+    color: #000;
+    text-align: center;
+}
+
+.features-grid {
+    display: flex;
+    gap: 21px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.feature-card {
+    width: 299px;
+    padding: 36px 20px 24px;
+    background: #fff;
+    border-radius: 32px;
+    border: 1px solid #000;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 38px;
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: pointer;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #000;
+}
+
+.feature-icon {
+    width: 124px;
+    height: 124px;
+    display: block;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.feature-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    text-align: center;
+    flex: 1;
+    width: 100%;
+}
+
+.feature-content h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #000;
+}
+
+.feature-content p {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000;
+    line-height: 1.5;
+}
+
+/* Pricing Section */
+.pricing {
+    width: 100%;
+    padding: 160px 140px 260px;
+    background: #39A1FF;
+    border-top-left-radius: 36px;
+    border-top-right-radius: 36px;
+    border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: -160px;
+    position: relative;
+    z-index: 2;
+}
+
+.pricing-content {
+    width: 100%;
+    max-width: 1160px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+}
+
+.pricing-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pricing-header h2 {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 63px;
+    color: #000;
+}
+
+.pricing-header p {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 24px;
+    color: #000;
+}
+
+.pricing-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.pricing-card {
+    width: 565px;
+    padding: 74px 56px;
+    background: #fff;
+    border-radius: 33px;
+    border: 1px solid #000;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: pointer;
+}
+
+.pricing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #000;
+}
+
+.pricing-card h3 {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 63px;
+    color: #000;
+    text-align: center;
+}
+
+.pricing-card p {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 32px;
+    color: #000;
+    text-align: center;
+}
+
+/* CTA Banner */
+.cta-banner {
+    width: 100%;
+    background: #D0CDF5;
+    border: 1px solid #000;
+    padding: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.cta-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    animation: scroll-horizontal 20s linear infinite;
+    white-space: nowrap;
+}
+
+@keyframes scroll-horizontal {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.cta-banner-text {
+    font-size: 48px;
+    font-weight: 700;
+    font-family: 'Helvetica', sans-serif;
+    color: #000;
+    flex-shrink: 0;
+}
+
+.cta-banner-dot {
+    width: 25px;
+    height: 25px;
+    background: #000;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Subscribe Section */
+.subscribe {
+    width: 100%;
+    padding: 62px 0;
+    background: #F1F1F1;
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+.subscribe-headline {
+    width: 51.46556rem;
+    max-width: 90vw;
+    margin: 0 auto;
+    color: #000;
+    text-align: center;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 1);
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: #fff;
+    -webkit-text-stroke-linejoin: round;
+    paint-order: stroke fill;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 2.5rem;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 113%;
+    letter-spacing: 0.0225rem;
+}
+
+.subscribe-images {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    align-items: center;
+}
+
+.subscribe-image {
+    width: 100%;
+    max-width: 730px;
+    height: auto;
+    background: #ddd;
+}
+
+/* Footer */
+.footer {
+    width: 100%;
+    padding: 62px 45px;
+    background: #D0CDF5;
+    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-content {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 80px;
+    justify-content: flex-end;
+}
+
+.footer-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.footer-newsletter {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.footer-newsletter h2 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #000;
+}
+
+.footer-newsletter-input-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+}
+
+.footer-email-input {
+    flex: 1;
+    width: 100%;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.footer-email-input:focus {
+    outline: none;
+    color: #000;
+}
+
+.footer-email-input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.footer-newsletter .newsletter-btn {
+    padding: 17px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 9999px;
+    box-shadow: none;
+    width: 70px;
+    height: 62px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.footer-newsletter .newsletter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #000;
+}
+
+.footer-newsletter .newsletter-arrow {
+    width: 20px;
+    height: 23px;
+}
+
+.footer-copyright {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.footer-logo {
+    width: 33px;
+    height: 32px;
+    display: block;
+    object-fit: contain;
+}
+
+.footer-copyright-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+}
+
+.footer-links {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    align-items: flex-end;
+}
+
+.footer-middle {
+    display: flex;
+    gap: 40px;
+}
+
+.footer-links-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.footer-link-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    text-decoration: none;
+    margin-bottom: 8px;
+}
+
+.footer-link {
+    font-size: 16px;
+    font-weight: 400;
+    color: #414141;
+    text-decoration: none;
+}
+
+.footer-social {
+    display: flex;
+    gap: 32px;
+    align-self: flex-end;
+}
+
+.footer-social-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.footer-social-icon:hover {
+    transform: translateY(-4px);
+}
+
+.footer-social-icon img {
+    width: 100%;
+    height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .features-header p,
+    .pricing-header p {
+        width: 100%;
+    }
+    
+    .features {
+        padding: 110px 20px 220px;
+    }
+    
+    .features-content {
+        gap: 110px;
+    }
+    
+    .pricing {
+        padding: 280px 20px 140px;
+        margin-top: -120px;
+    }
+    
+    .pricing-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .pricing-card {
+        width: 100%;
+        max-width: 565px;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .footer-left,
+    .footer-links {
+        width: 100%;
+    }
+    
+    .footer-middle {
+        flex-direction: column;
+        gap: 24px;
+    }
+    
+    .footer-links,
+    .footer-links-column {
+        align-items: flex-start;
+        text-align: left;
+    }
+    
+    .footer-social {
+        align-self: flex-start;
+        gap: 16px;
+    }
+    
+    .footer-newsletter-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .footer-newsletter .newsletter-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        height: auto;
+        padding: 12px 16px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .sign-up-btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .hero-headline {
+        width: 100%;
+        font-size: 3.25rem;
+        -webkit-text-stroke-width: 1px;
+        paint-order: stroke fill;
+    }
+    
+    .subscribe-headline {
+        width: 100%;
+        font-size: 2rem;
+        -webkit-text-stroke-width: 1.5px;
+        paint-order: stroke fill;
+    }
+    
+    .features,
+    .pricing {
+        padding: 60px 20px;
+    }
+    
+    .features {
+        padding-bottom: 190px;
+    }
+    
+    .features-content {
+        gap: 90px;
+    }
+    
+    .pricing {
+        margin-top: -110px;
+        padding: 150px 20px 120px;
+    }
+    
+    .features-header h2,
+    .pricing-header h2 {
+        font-size: 28px;
+        line-height: 1.2;
+    }
+    
+    .features-header p,
+    .pricing-header p {
+        font-size: 18px;
+    }
+    
+    .features-grid {
+        flex-direction: column;
+    }
+    
+    .feature-card {
+        width: 100%;
+    }
+    
+    .cta-banner-text {
+        font-size: 32px;
+    }
+    
+    .footer {
+        padding: 40px 20px;
+    }
+    
+    .footer-newsletter h2 {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 80px 20px;
+    }
+    
+    .hero-headline {
+        font-size: 2.5rem;
+        -webkit-text-stroke-width: 0.5px;
+        paint-order: stroke fill;
+    }
+    
+    .subscribe-headline {
+        font-size: 1.75rem;
+        -webkit-text-stroke-width: 1px;
+        paint-order: stroke fill;
+    }
+    
+    .email-line {
+        width: 100%;
+        max-width: 859px;
+    }
+    
+    .features-header h2,
+    .pricing-header h2 {
+        font-size: 24px;
+    }
+    
+    .pricing-card h3 {
+        font-size: 48px;
+    }
+    
+    .features {
+        padding-bottom: 170px;
+    }
+    
+    .features-content {
+        gap: 70px;
+    }
+    
+    .pricing {
+        margin-top: -80px;
+        padding: 120px 20px 90px;
+    }
+    
+    .pricing {
+        margin-top: -60px;
+        padding-top: 80px;
+    }
+    
+    .cta-banner {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .cta-banner-text {
+        font-size: 24px;
+    }
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Add padding to body to account for fixed header */
+body {
+    padding-top: 72px;
+}
