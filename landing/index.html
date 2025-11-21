@@ -28,7 +28,7 @@
     <link rel="alternate icon" href="./favicon.svg?v=2">
     <link rel="apple-touch-icon" href="./assets/icons/mixmi_logo_v2_160px.svg">
     <link rel="shortcut icon" href="./favicon.svg?v=2">
-    <link rel="stylesheet" href="styles.css?v=20241121">
+    <link rel="stylesheet" href="styles.css?v=20241121-2">
 </head>
 <body>
     <!-- Header -->
@@ -52,7 +52,6 @@
             <img src="./assets/images/sticker_1.png" alt="" class="hero-sticker hero-sticker--vibe">
             <img src="./assets/images/sticker_2.png" alt="" class="hero-sticker hero-sticker--wow">
             <img src="./assets/images/sticker_3.png" alt="" class="hero-sticker hero-sticker--weird">
-            <img src="./assets/images/sticker_4.png" alt="" class="hero-sticker hero-sticker--energy">
             <img src="./assets/images/sticker_5.png" alt="" class="hero-sticker hero-sticker--letsgo">
         </div>
         <div class="email-section">
@@ -277,7 +276,7 @@
 
     <script type="module">
         import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
-        import { getFirestore, addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+        import { getFirestore, doc, serverTimestamp, setDoc } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 
         // SECURITY NOTE: Firebase API keys are public by design for client-side apps.
         // Security is enforced through:
@@ -306,6 +305,8 @@
         const emailForms = document.querySelectorAll('[data-email-form]');
 
         const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        const normalizeEmail = (value) => value.trim().toLowerCase();
+        const buildEmailDocId = (value) => value;
 
         const updateStatus = (element, message, isError) => {
             if (!element) {
@@ -328,6 +329,27 @@
 
             if (defaultLabel && loadingLabel) {
                 button.textContent = isLoading ? loadingLabel : defaultLabel;
+            }
+        };
+
+        const saveEmail = async (email, source) => {
+            const normalizedEmail = normalizeEmail(email);
+            const emailDocId = buildEmailDocId(normalizedEmail);
+            const signupRef = doc(firestore, 'newsletter_signups', emailDocId);
+
+            try {
+                await setDoc(signupRef, {
+                    email,
+                    normalizedEmail,
+                    source,
+                    createdAt: serverTimestamp()
+                });
+                return 'created';
+            } catch (error) {
+                if (error?.code === 'permission-denied') {
+                    return 'exists';
+                }
+                throw error;
             }
         };
 
@@ -361,14 +383,16 @@
                 updateStatus(statusElement, 'Saving your email...', false);
 
                 try {
-                    await addDoc(collection(firestore, 'newsletter_signups'), {
-                        email: emailValue,
-                        source: form.dataset.emailForm,
-                        createdAt: serverTimestamp()
-                    });
-                    sendWelcomeEmail(emailValue);
-                    updateStatus(statusElement, 'Thanks! You are subscribed.', false);
-                    form.reset();
+                    const saveResult = await saveEmail(emailValue, form.dataset.emailForm);
+
+                    if (saveResult === 'exists') {
+                        updateStatus(statusElement, 'Looks like you already subscribed with this email.', false);
+                        form.reset();
+                    } else {
+                        await sendWelcomeEmail(emailValue);
+                        updateStatus(statusElement, 'Thanks! You are subscribed.', false);
+                        form.reset();
+                    }
                 } catch (error) {
                     console.error('Failed to save email', error);
                     updateStatus(statusElement, 'Sorry, something went wrong. Please try again.', true);

@@ -184,7 +184,7 @@ body {
 }
 
 .hero-sticker--vibe {
-    top: 6%;
+    top: 10%;
     left: 15%;
     transform: rotate(-8deg);
 }
@@ -197,21 +197,14 @@ body {
 }
 
 .hero-sticker--weird {
-    bottom: 18%;
-    left: 10%;
+    bottom: 10%;
+    left: 8%;
     width: clamp(140px, 15vw, 240px);
     transform: rotate(-6deg);
 }
 
-.hero-sticker--energy {
-    bottom: 6%;
-    left: 42%;
-    width: clamp(150px, 16vw, 260px);
-    transform: rotate(-10deg);
-}
-
 .hero-sticker--letsgo {
-    bottom: 18%;
+    bottom: 10%;
     right: 10%;
     width: clamp(150px, 16vw, 250px);
     transform: rotate(5deg);
@@ -428,6 +421,7 @@ body {
     width: 773px;
     max-width: 100%;
     margin: 0 auto;
+    padding: 0 24px;
     font-size: 20px;
     font-weight: 500;
     line-height: 24px;
@@ -526,10 +520,15 @@ body {
 }
 
 .pricing-header p {
+    width: 773px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
     font-size: 20px;
     font-weight: 500;
     line-height: 24px;
     color: #000;
+    text-align: center;
 }
 
 .pricing-grid {
@@ -731,8 +730,8 @@ body {
     padding: 17px;
     background: #fff;
     border: 1px solid #000;
-    border-radius: 9999px;
-    box-shadow: none;
+    border-radius: 12px;
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
     width: 70px;
     height: 62px;
     display: flex;
@@ -740,12 +739,20 @@ body {
     align-items: center;
     flex-shrink: 0;
     cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transition:
+        transform 0.3s var(--cta-transition-bezier),
+        box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
 }
 
-.footer-newsletter .newsletter-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 0 #000;
+.footer-newsletter .newsletter-btn:hover,
+.footer-newsletter .newsletter-btn:focus-visible {
+    transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+    box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.footer-newsletter .newsletter-btn:active {
+    transform: translateY(calc(-1 * var(--cta-animation-depth)));
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .footer-newsletter .newsletter-arrow {
@@ -837,10 +844,11 @@ body {
     .features-header p,
     .pricing-header p {
         width: 100%;
+        padding: 0 24px;
     }
     
     .features {
-        padding: 110px 20px 220px;
+        padding: 280px 20px 220px;
     }
     
     .features-content {
@@ -905,13 +913,12 @@ body {
     }
     
     .header-content {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
     }
     
     .sign-up-btn {
-        width: 100%;
-        text-align: center;
+        width: auto;
     }
     
     .hero-headline {
@@ -934,7 +941,7 @@ body {
     }
     
     .features {
-        padding-bottom: 190px;
+        padding: 150px 20px 190px;
     }
     
     .features-content {
@@ -955,6 +962,7 @@ body {
     .features-header p,
     .pricing-header p {
         font-size: 18px;
+        padding: 0 24px;
     }
     
     .features-grid {
@@ -1010,7 +1018,7 @@ body {
     }
     
     .features {
-        padding-bottom: 170px;
+        padding: 80px 20px 170px;
     }
     
     .features-content {
@@ -1018,13 +1026,8 @@ body {
     }
     
     .pricing {
-        margin-top: -80px;
-        padding: 120px 20px 90px;
-    }
-    
-    .pricing {
         margin-top: -60px;
-        padding-top: 80px;
+        padding: 80px 20px 90px;
     }
     
     .cta-banner {

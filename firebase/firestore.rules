@@ -278,14 +278,15 @@ service cloud.firestore {
     match /newsletter_signups/{signupId} {
       allow read: if isAdmin();
       
-      allow create: if hasValidFields(['email', 'createdAt'], ['source'])
+      allow create: if hasValidFields(['email', 'createdAt'], ['source', 'normalizedEmail'])
         && request.resource.data.email is string
         && request.resource.data.email.size() >= 5
         && request.resource.data.email.size() <= 100
         && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$')  // Email format validation
         && request.resource.data.createdAt is timestamp
         && (request.resource.data.source == null || request.resource.data.source is string)
-        && request.resource.data.source.size() <= 50;  // Limit source field length
+        && (request.resource.data.source == null || request.resource.data.source.size() <= 50)
+        && (request.resource.data.normalizedEmail == null || request.resource.data.normalizedEmail is string);
       
       allow update, delete: if false;  // No updates or deletes allowed
     }
