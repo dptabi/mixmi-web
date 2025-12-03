@@ -1,0 +1,17 @@
+{
+  "name": "landing",
+  "version": "1.0.0",
+  "description": "A static, SEO-optimized landing page for the Mixmi web application.",
+  "main": "create-favicon.js",
+  "scripts": {
+    "build:favicons": "node create-favicon.js && node create-ico.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "sharp": "^0.34.5"
+  }
+}

@@ -16,6 +16,24 @@
       ],
       "headers": [
         {
+          "source": "/favicon.@(svg|ico|png)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/apple-touch-icon.png",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        {
           "source": "**/*.@(js|css)",
           "headers": [
             {
@@ -71,6 +89,24 @@
         }
       ],
       "headers": [
+        {
+          "source": "/favicon.@(svg|ico|png)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/apple-touch-icon.png",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=0, must-revalidate"
+            }
+          ]
+        },
         {
           "source": "**/*.@(js|css)",
           "headers": [

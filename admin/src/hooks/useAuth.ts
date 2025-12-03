@@ -8,9 +8,10 @@ import {
   GoogleAuthProvider,
   signOut, 
   onAuthStateChanged,
-  User 
+  User,
+  getIdTokenResult
 } from 'firebase/auth';
-import { ref, get } from 'firebase/database';
+import { ref, get, set } from 'firebase/database';
 
 interface AdminUser extends User {
   isAdmin: boolean;
@@ -40,23 +41,60 @@ export const useAuth = () => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          // Check if user is admin in Realtime Database
-          const userRef = ref(rtdb, `users/${firebaseUser.uid}`);
-          const snapshot = await get(userRef);
-          const userData = snapshot.val();
+          // Check custom claims first (set by grant_admin.ts script)
+          const tokenResult = await getIdTokenResult(firebaseUser);
+          const hasAdminClaim = tokenResult.claims.admin === true || 
+                                tokenResult.claims.role === 'admin' || 
+                                tokenResult.claims.role === 'superadmin';
           
-          if (userData?.role === 'admin' || userData?.role === 'superadmin') {
+          // Also check Realtime Database for backward compatibility
+          let userData = null;
+          let hasDbAdminRole = false;
+          
+          try {
+            const userRef = ref(rtdb, `users/${firebaseUser.uid}`);
+            const snapshot = await get(userRef);
+            userData = snapshot.val();
+            hasDbAdminRole = userData?.role === 'admin' || userData?.role === 'superadmin';
+          } catch (dbErr) {
+            // If database check fails, continue with custom claims check
+            console.warn('Could not check Realtime Database for admin role:', dbErr);
+          }
+          
+          // Grant access if user has admin claim OR database admin role
+          if (hasAdminClaim || hasDbAdminRole) {
+            const role = hasDbAdminRole ? userData.role : 
+                        (tokenResult.claims.role === 'superadmin' ? 'superadmin' : 'admin');
+            
+            // If user has admin claim but no DB entry, create one for consistency
+            if (hasAdminClaim && !userData) {
+              try {
+                const userRef = ref(rtdb, `users/${firebaseUser.uid}`);
+                await set(userRef, {
+                  id: firebaseUser.uid,
+                  email: firebaseUser.email || '',
+                  displayName: firebaseUser.displayName || '',
+                  role: role,
+                  createdAt: Date.now()
+                });
+                console.log('Created admin user entry in Realtime Database');
+              } catch (createErr) {
+                console.warn('Could not create user entry in Realtime Database:', createErr);
+                // Continue anyway since custom claims are valid
+              }
+            }
+            
             setUser({
               ...firebaseUser,
               isAdmin: true,
-              role: userData.role
+              role: role
             } as AdminUser);
             setError(null);
           } else {
             // Not an admin, sign out
             await signOut(auth);
             setUser(null);
-            setError('You do not have admin privileges');
+            setError('You do not have admin privileges. Please contact an administrator to grant you access.');
           }
         } catch (err) {
           console.error('Error checking admin status:', err);
@@ -105,22 +143,25 @@ export const useAuth = () => {
       // Handle specific error codes
       switch (err.code) {
         case 'auth/operation-not-allowed':
-          setError('Google Sign-In is not enabled. Please contact administrator.');
+          setError('Google Sign-In is not enabled. Please contact administrator or enable it in Firebase Console > Authentication > Sign-in method.');
           break;
         case 'auth/unauthorized-domain':
-          setError('This domain is not authorized for Google Sign-In.');
+          setError(`Domain "${window.location.hostname}" is not authorized. Please add it to Firebase Console > Authentication > Settings > Authorized domains.`);
           break;
         case 'auth/popup-closed-by-user':
           setError('Sign-in was cancelled. Please try again.');
           break;
         case 'auth/popup-blocked':
-          setError('Popup was blocked by browser. Please allow popups and try again.');
+          setError('Popup was blocked by browser. Please allow popups for this site and try again, or use the redirect option.');
           break;
         case 'auth/network-request-failed':
-          setError('Network error. Please check your internet connection.');
+          setError('Network error. Please check your internet connection and try again.');
+          break;
+        case 'auth/cancelled-popup-request':
+          setError('Another sign-in attempt is already in progress. Please wait.');
           break;
         default:
-          setError(`Google Sign-In failed: ${err.message}`);
+          setError(`Google Sign-In failed: ${err.message || err.code || 'Unknown error'}. Please check the browser console for details.`);
       }
       
       throw err;
@@ -145,7 +186,16 @@ export const useAuth = () => {
       
     } catch (err: any) {
       console.error('Google Redirect Sign-In error:', err);
-      setError(`Google Sign-In failed: ${err.message}`);
+      
+      // Handle specific error codes for redirect
+      if (err.code === 'auth/unauthorized-domain') {
+        setError(`Domain "${window.location.hostname}" is not authorized. Please add it to Firebase Console > Authentication > Settings > Authorized domains.`);
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError('Google Sign-In is not enabled. Please contact administrator or enable it in Firebase Console > Authentication > Sign-in method.');
+      } else {
+        setError(`Google Sign-In failed: ${err.message || err.code || 'Unknown error'}. Please check the browser console for details.`);
+      }
+      
       throw err;
     }
   };

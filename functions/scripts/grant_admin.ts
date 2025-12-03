@@ -16,7 +16,7 @@ const parseArguments = (): GrantAdminOptions => {
     console.error('Missing target email. Pass it as the first argument or set ADMIN_TARGET_EMAIL.');
     process.exit(1);
   }
-  const serviceAccountPath = serviceAccountArg ?? process.env.FIREBASE_ADMIN_SA_PATH ?? '../service-account.json';
+  const serviceAccountPath = serviceAccountArg ?? process.env.FIREBASE_ADMIN_SA_PATH ?? '../mixmi-66529-firebase-adminsdk-fbsvc-d20953b0b9.json';
   return { email, serviceAccountPath };
 };
 
