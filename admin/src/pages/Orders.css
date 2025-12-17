@@ -1,31 +1,31 @@
 .orders-container {
-  background: #F8FAFC;
+  background: transparent;
   min-height: 100vh;
 }
 
 .orders-toolbar {
   background: white;
   padding: 20px 32px;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid #000;
 }
 
 .search-input {
   width: 100%;
   max-width: 500px;
   padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
+  border: 1px solid #000;
+  border-radius: 12px;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: transform 0.1s, box-shadow 0.1s;
   margin-bottom: 16px;
-  background: #F8FAFC;
+  background: white;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3B82F6;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #000;
 }
 
 .filter-buttons {
@@ -36,68 +36,109 @@
 
 .filter-buttons button {
   padding: 10px 16px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #000;
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
-  color: #64748B;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  color: #000;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.filter-buttons button:hover {
-  border-color: #3B82F6;
-  color: #3B82F6;
-  background: #F0F9FF;
+.filter-buttons button:hover,
+.filter-buttons button:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.filter-buttons button:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .filter-buttons button.active {
-  border-color: #3B82F6;
-  background: #3B82F6;
-  color: white;
+  background: #D0CDF5;
+  border-color: #000;
+  color: #000;
 }
 
 .btn-outline {
   padding: 10px 20px;
-  border: 1px solid #3B82F6;
+  border: 1px solid #000;
   background: white;
-  color: #3B82F6;
-  border-radius: 8px;
+  color: #000;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.btn-outline:hover {
-  background: #3B82F6;
-  color: white;
+.btn-outline:hover,
+.btn-outline:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.btn-outline:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .btn-primary {
   padding: 10px 20px;
-  border: none;
-  background: #3B82F6;
-  color: white;
-  border-radius: 8px;
+  border: 1px solid #000;
+  background: #D0CDF5;
+  color: #000;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.btn-primary:hover {
-  background: #2563EB;
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.btn-primary:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .orders-table-container {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #000;
+  border-radius: 24px;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
   overflow: hidden;
-  border: 1px solid #E2E8F0;
   margin: 24px 32px 32px 32px;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+
+.orders-table-container:hover,
+.orders-table-container:focus-within {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.orders-table-container:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .orders-table {
@@ -106,8 +147,8 @@
 }
 
 .orders-table thead {
-  background: #F8FAFC;
-  border-bottom: 2px solid #E2E8F0;
+  background: #D0CDF5;
+  border-bottom: 2px solid #000;
 }
 
 .orders-table th {
@@ -115,24 +156,24 @@
   text-align: left;
   font-size: 12px;
   font-weight: 700;
-  color: #64748B;
+  color: #000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .orders-table tbody tr {
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid #000;
   transition: background-color 0.2s;
 }
 
 .orders-table tbody tr:hover {
-  background: #F8FAFC;
+  background: #F1F1F1;
 }
 
 .orders-table td {
   padding: 16px;
   font-size: 14px;
-  color: #1E293B;
+  color: #000;
 }
 
 .order-items-count {
@@ -149,17 +190,17 @@
 
 .customer-name {
   font-weight: 600;
-  color: #1E293B;
+  color: #000;
 }
 
 .customer-email {
   font-size: 13px;
-  color: #64748B;
+  color: #666;
 }
 
 .customer-phone {
   font-size: 13px;
-  color: #94A3B8;
+  color: #666;
 }
 
 .payment-info {
@@ -215,79 +256,120 @@
 }
 
 .view-details-button {
-  background: #3B82F6;
-  color: white;
-  border: none;
+  background: #D0CDF5;
+  color: #000;
+  border: 1px solid #000;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.view-details-button:hover {
-  background: #2563EB;
+.view-details-button:hover,
+.view-details-button:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.view-details-button:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .mark-paid-button {
   padding: 6px 12px;
-  background-color: #10B981;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background-color: white;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.mark-paid-button:hover {
-  background-color: #059669;
+.mark-paid-button:hover,
+.mark-paid-button:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.mark-paid-button:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .cancel-button {
-  background: #EF4444;
-  color: white;
-  border: none;
+  background: white;
+  color: #000;
+  border: 1px solid #000;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.cancel-button:hover {
-  background: #DC2626;
+.cancel-button:hover,
+.cancel-button:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.cancel-button:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .delete-button {
-  background: #DC2626;
-  color: white;
-  border: none;
+  background: white;
+  color: #000;
+  border: 1px solid #000;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.delete-button:hover {
-  background: #B91C1C;
+.delete-button:hover,
+.delete-button:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.delete-button:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .loading,
 .no-orders {
   padding: 48px;
   text-align: center;
-  color: #64748B;
+  color: #666;
   font-size: 16px;
   margin: 24px 32px;
   background: white;
-  border-radius: 12px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #000;
+  border-radius: 24px;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 /* Modal Styles */
@@ -307,12 +389,13 @@
 
 .modal-content {
   background: white;
-  border-radius: 16px;
+  border: 1px solid #000;
+  border-radius: 24px;
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .modal-header {
@@ -320,34 +403,43 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid #000;
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #1E293B;
+  color: #000;
   font-size: 20px;
   font-weight: 700;
 }
 
 .close-button {
-  background: none;
-  border: none;
+  background: white;
+  border: 1px solid #000;
   font-size: 28px;
   cursor: pointer;
-  color: #64748B;
+  color: #000;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s;
+  border-radius: 12px;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.close-button:hover {
-  background: #F1F5F9;
-  color: #1E293B;
+.close-button:hover,
+.close-button:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.close-button:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .modal-body {
@@ -362,17 +454,18 @@
 }
 
 .detail-section {
-  background: #F8FAFC;
+  background: white;
   padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #000;
+  border-radius: 24px;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .detail-section h3 {
   margin: 0 0 16px 0;
-  color: #1E293B;
+  color: #000;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .detail-item {
@@ -387,7 +480,7 @@
 }
 
 .detail-item strong {
-  color: #64748B;
+  color: #666;
   font-weight: 600;
   min-width: 80px;
 }
@@ -426,14 +519,14 @@
 .items-section {
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid #000;
 }
 
 .items-section h3 {
   margin: 0 0 16px 0;
-  color: #1E293B;
+  color: #000;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .items-list {
@@ -447,9 +540,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
+  background: white;
+  border: 1px solid #000;
+  border-radius: 12px;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 .item-info {
@@ -458,48 +552,58 @@
 
 .item-name {
   font-weight: 600;
-  color: #1E293B;
+  color: #000;
   margin-bottom: 4px;
 }
 
 .item-details {
   font-size: 14px;
-  color: #64748B;
+  color: #666;
   margin-bottom: 4px;
 }
 
 .item-price {
   font-size: 14px;
-  color: #64748B;
+  color: #666;
 }
 
 .item-total {
   font-weight: 700;
-  color: #1E293B;
+  color: #000;
   font-size: 16px;
 }
 
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid #000;
   display: flex;
   justify-content: flex-end;
 }
 
 .close-modal-button {
-  background: #64748B;
-  color: white;
-  border: none;
+  background: white;
+  color: #000;
+  border: 1px solid #000;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
-  transition: all 0.2s;
+  transition:
+    transform 0.3s var(--cta-transition-bezier),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
-.close-modal-button:hover {
-  background: #475569;
+.close-modal-button:hover,
+.close-modal-button:focus-visible {
+  transform: translateY(calc(-0.3 * var(--cta-animation-depth)));
+  box-shadow: 0 calc(var(--cta-animation-depth) * 0.55) 0 0 rgba(0, 0, 0, 0.9);
+}
+
+.close-modal-button:active {
+  transform: translateY(calc(-1 * var(--cta-animation-depth)));
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
 }
 
 @media (max-width: 768px) {

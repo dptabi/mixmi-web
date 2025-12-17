@@ -25,16 +25,16 @@ const menuItems: MenuItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'orders', label: 'Orders', icon: '📦' },
   { id: 'users', label: 'Users', icon: '👥' },
-  { id: 'analytics', label: 'Analytics', icon: '📈' },
+  { id: 'audit-logs', label: 'Audit Logs', icon: '📋' },
 ];
 
-export default function Sidebar({ 
-  activeTab, 
-  onTabChange, 
-  user, 
+export default function Sidebar({
+  activeTab,
+  onTabChange,
+  user,
   onLogout,
   isCollapsed,
-  onToggleCollapse 
+  onToggleCollapse
 }: SidebarProps) {
   const userName = user.displayName || user.email?.split('@')[0] || 'Admin';
 
@@ -43,10 +43,15 @@ export default function Sidebar({
       <div className="sidebar-content">
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <span className="logo-icon">🎨</span>
-            {!isCollapsed && <span className="logo-text">Mixmi Admin</span>}
+            <img
+              src={`${process.env.PUBLIC_URL || ''}/favicon.svg`}
+              alt="Mixmi"
+              className="logo-icon"
+              width="46"
+              height="46"
+            />
           </div>
-          <button 
+          <button
             className="sidebar-toggle"
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -71,8 +76,8 @@ export default function Sidebar({
 
         <div className="sidebar-footer">
           <div className="sidebar-user">
-            <Avatar 
-              name={userName} 
+            <Avatar
+              name={userName}
               photoURL={user.photoURL || undefined}
               size="medium"
             />

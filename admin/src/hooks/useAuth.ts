@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { auth, rtdb } from '../firebase';
-import { 
-  signInWithEmailAndPassword, 
+import {
+  signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   GoogleAuthProvider,
-  signOut, 
+  signOut,
   onAuthStateChanged,
   User,
-  getIdTokenResult
+  getIdTokenResult,
+  getIdToken
 } from 'firebase/auth';
 import { ref, get, set } from 'firebase/database';
 
@@ -41,16 +42,20 @@ export const useAuth = () => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
+          // Force token refresh to get latest custom claims
+          await getIdToken(firebaseUser, true);
+
           // Check custom claims first (set by grant_admin.ts script)
-          const tokenResult = await getIdTokenResult(firebaseUser);
-          const hasAdminClaim = tokenResult.claims.admin === true || 
-                                tokenResult.claims.role === 'admin' || 
-                                tokenResult.claims.role === 'superadmin';
-          
+          const tokenResult = await getIdTokenResult(firebaseUser, true);
+          console.log('Token claims:', tokenResult.claims);
+          const hasAdminClaim = tokenResult.claims.admin === true ||
+            tokenResult.claims.role === 'admin' ||
+            tokenResult.claims.role === 'superadmin';
+
           // Also check Realtime Database for backward compatibility
           let userData = null;
           let hasDbAdminRole = false;
-          
+
           try {
             const userRef = ref(rtdb, `users/${firebaseUser.uid}`);
             const snapshot = await get(userRef);
@@ -60,12 +65,12 @@ export const useAuth = () => {
             // If database check fails, continue with custom claims check
             console.warn('Could not check Realtime Database for admin role:', dbErr);
           }
-          
+
           // Grant access if user has admin claim OR database admin role
           if (hasAdminClaim || hasDbAdminRole) {
-            const role = hasDbAdminRole ? userData.role : 
-                        (tokenResult.claims.role === 'superadmin' ? 'superadmin' : 'admin');
-            
+            const role = hasDbAdminRole ? userData.role :
+              (tokenResult.claims.role === 'superadmin' ? 'superadmin' : 'admin');
+
             // If user has admin claim but no DB entry, create one for consistency
             if (hasAdminClaim && !userData) {
               try {
@@ -83,7 +88,7 @@ export const useAuth = () => {
                 // Continue anyway since custom claims are valid
               }
             }
-            
+
             setUser({
               ...firebaseUser,
               isAdmin: true,
@@ -124,22 +129,22 @@ export const useAuth = () => {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
-      
+
       // Add additional scopes if needed
       provider.addScope('email');
       provider.addScope('profile');
-      
+
       // Set custom parameters
       provider.setCustomParameters({
         prompt: 'select_account'
       });
-      
+
       const result = await signInWithPopup(auth, provider);
       console.log('Google Sign-In successful:', result);
-      
+
     } catch (err: any) {
       console.error('Google Sign-In error:', err);
-      
+
       // Handle specific error codes
       switch (err.code) {
         case 'auth/operation-not-allowed':
@@ -163,7 +168,7 @@ export const useAuth = () => {
         default:
           setError(`Google Sign-In failed: ${err.message || err.code || 'Unknown error'}. Please check the browser console for details.`);
       }
-      
+
       throw err;
     }
   };
@@ -172,21 +177,21 @@ export const useAuth = () => {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
-      
+
       // Add additional scopes if needed
       provider.addScope('email');
       provider.addScope('profile');
-      
+
       // Set custom parameters
       provider.setCustomParameters({
         prompt: 'select_account'
       });
-      
+
       await signInWithRedirect(auth, provider);
-      
+
     } catch (err: any) {
       console.error('Google Redirect Sign-In error:', err);
-      
+
       // Handle specific error codes for redirect
       if (err.code === 'auth/unauthorized-domain') {
         setError(`Domain "${window.location.hostname}" is not authorized. Please add it to Firebase Console > Authentication > Settings > Authorized domains.`);
@@ -195,7 +200,7 @@ export const useAuth = () => {
       } else {
         setError(`Google Sign-In failed: ${err.message || err.code || 'Unknown error'}. Please check the browser console for details.`);
       }
-      
+
       throw err;
     }
   };
@@ -210,6 +215,20 @@ export const useAuth = () => {
     }
   };
 
-  return { user, loading, error, login, loginWithGoogle, loginWithGoogleRedirect, logout };
+  const refreshToken = async () => {
+    try {
+      if (auth.currentUser) {
+        await getIdToken(auth.currentUser, true);
+        console.log('Token refreshed successfully');
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error refreshing token:', err);
+      return false;
+    }
+  };
+
+  return { user, loading, error, login, loginWithGoogle, loginWithGoogleRedirect, logout, refreshToken };
 };
 

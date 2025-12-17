@@ -6,6 +6,7 @@ import DataTable, { Column } from '../components/DataTable';
 import Modal from '../components/Modal';
 import StatCard from '../components/StatCard';
 import TopBar from '../components/TopBar';
+import { useAuth } from '../hooks/useAuth';
 import {
   User,
   fetchUsers,
@@ -20,24 +21,26 @@ import {
 import './Users.css';
 
 export default function Users() {
+  const { user: currentUser, refreshToken } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'suspended' | 'banned' | 'admins'>('all');
-  
+
   // Modal states
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [showEditRole, setShowEditRole] = useState(false);
   const [showStatusChange, setShowStatusChange] = useState(false);
-  
+
   // Form states
-  const [newRole, setNewRole] = useState<'user' | 'admin' | 'superadmin'>('user');
+  const [newRole, setNewRole] = useState<'buyer' | 'creator' | 'admin' | 'superadmin'>('buyer');
   const [newStatus, setNewStatus] = useState<'active' | 'suspended' | 'banned'>('active');
   const [statusReason, setStatusReason] = useState('');
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const filterUsers = React.useCallback(() => {
     let filtered = [...users];
@@ -67,29 +70,95 @@ export default function Users() {
   }, [users, searchTerm, filter]);
 
   useEffect(() => {
-    loadUsers();
-    
-    // Subscribe to real-time updates
-    const unsubscribe = subscribeToUsers((updatedUsers) => {
-      setUsers(updatedUsers);
-      setLoading(false);
-    });
+    let unsubscribe: (() => void) | null = null;
+    let isMounted = true;
 
-    return () => unsubscribe();
+    // Load users first, then set up real-time subscription
+    // The subscribeToUsers function now handles token refresh internally
+    const initializeUsers = async () => {
+      try {
+        // First, try to load users with token refresh
+        if (isMounted) {
+          await loadUsers(false);
+        }
+
+        // Then set up real-time subscription (which also refreshes token)
+        // This ensures we have a valid token before subscribing
+        if (isMounted) {
+          unsubscribe = subscribeToUsers((updatedUsers) => {
+            if (isMounted) {
+              setUsers(updatedUsers);
+              setLoading(false);
+              setError(null); // Clear any previous errors on successful update
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error initializing users:', err);
+        // Error is already handled in loadUsers
+      }
+    };
+
+    initializeUsers();
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     filterUsers();
   }, [filterUsers]);
 
-  const loadUsers = async () => {
+  const loadUsers = async (forceTokenRefresh: boolean = false) => {
     setLoading(true);
+    setError(null); // Clear previous errors
     try {
+      // If forcing token refresh, refresh the token first
+      if (forceTokenRefresh) {
+        console.log('🔄 Refreshing token before fetching users...');
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          console.log('✅ Token refreshed successfully, retrying fetch users...');
+          // Wait a moment for the token to propagate
+          await new Promise(resolve => setTimeout(resolve, 500));
+        } else {
+          console.warn('⚠️ Token refresh failed, continuing anyway...');
+        }
+      }
+
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
-    } catch (error) {
-      console.error('Error loading users:', error);
-      alert('Failed to load users');
+      setError(null); // Clear any previous errors on success
+      if (fetchedUsers.length === 0) {
+        console.warn('No users found. This could mean: 1) No users exist in the database, 2) Database rules not deployed, or 3) Permission issue');
+      }
+    } catch (error: any) {
+      console.error('❌ Error loading users:', error);
+      const errorMessage = error?.message || 'Failed to load users';
+
+      // Set error state for UI display
+      setError(errorMessage);
+
+      // Show a more detailed error message for permission denied
+      let detailedMessage = errorMessage;
+      if (errorMessage?.toLowerCase().includes('permission denied') || error?.code === 'PERMISSION_DENIED') {
+        detailedMessage = `❌ PERMISSION DENIED\n\n` +
+          `Your authentication token doesn't have admin/superadmin custom claims.\n\n` +
+          `🔧 TO FIX:\n\n` +
+          `1. Run: ./scripts/grant-superadmin.sh hey@mixmi.co\n` +
+          `2. Sign out completely (click Logout button)\n` +
+          `3. Sign back in to get a fresh token\n` +
+          `4. Check browser console (F12) for token claims\n\n` +
+          `The console will show what claims are in your current token.`;
+      }
+
+      // Show error with better formatting
+      alert(`Error: ${detailedMessage}\n\n💡 TIP: Open browser console (F12) and look for logs starting with:\n- "Token claims:"\n- "Has admin claim:"\n- "User role in database:"`);
     } finally {
       setLoading(false);
     }
@@ -99,7 +168,7 @@ export default function Users() {
     setSelectedUser(user);
     setShowUserDetails(true);
     setLoadingOrders(true);
-    
+
     try {
       const orders = await getUserOrders(user.email);
       setUserOrders(orders);
@@ -126,6 +195,13 @@ export default function Users() {
 
   const handleSaveRole = async () => {
     if (!selectedUser) return;
+
+    // Only superadmins can change roles to admin or superadmin
+    const isSuperAdmin = currentUser?.role === 'superadmin';
+    if ((newRole === 'admin' || newRole === 'superadmin') && !isSuperAdmin) {
+      alert('❌ Only superadmins can assign admin or superadmin roles.');
+      return;
+    }
 
     try {
       await updateUserRole(selectedUser.uid, newRole);
@@ -188,8 +264,8 @@ export default function Users() {
       width: '120px',
       sortable: true,
       render: (user) => (
-        <StatusBadge 
-          status={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
+        <StatusBadge
+          status={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
           variant={getRoleVariant(user.role)}
         />
       ),
@@ -200,8 +276,8 @@ export default function Users() {
       width: '120px',
       sortable: true,
       render: (user) => (
-        <StatusBadge 
-          status={user.status.charAt(0).toUpperCase() + user.status.slice(1)} 
+        <StatusBadge
+          status={user.status.charAt(0).toUpperCase() + user.status.slice(1)}
           variant={getUserStatusVariant(user.status)}
           icon={user.status === 'active' ? '✅' : user.status === 'suspended' ? '⏸️' : '🚫'}
         />
@@ -239,7 +315,7 @@ export default function Users() {
     },
   ];
 
-  if (loading) {
+  if (loading && users.length === 0) {
     return (
       <div className="users-container">
         <div className="loading-state">
@@ -252,15 +328,18 @@ export default function Users() {
 
   return (
     <div className="users-container">
-      <TopBar 
+      <TopBar
         title="User Management"
         subtitle={`${filteredUsers.length} users ${filter !== 'all' ? `(${filter})` : ''}`}
         searchPlaceholder="Search by name, email, or ID..."
         onSearch={setSearchTerm}
         actions={
           <>
-            <button className="btn-outline" onClick={loadUsers}>
+            <button className="btn-outline" onClick={() => loadUsers(false)}>
               🔄 Refresh
+            </button>
+            <button className="btn-outline" onClick={() => loadUsers(true)} title="Refresh token and retry">
+              🔑 Refresh Token & Retry
             </button>
             <button className="btn-primary" onClick={handleExportCSV}>
               📥 Export CSV
@@ -268,6 +347,40 @@ export default function Users() {
           </>
         }
       />
+
+      {/* Error Display */}
+      {error && (
+        <div className="error-banner" style={{
+          padding: '16px',
+          margin: '16px 0',
+          backgroundColor: '#FEE2E2',
+          border: '1px solid #FCA5A5',
+          borderRadius: '8px',
+          color: '#991B1B'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span>❌</span>
+            <strong>Error Loading Users</strong>
+          </div>
+          <div style={{ fontSize: '14px', whiteSpace: 'pre-wrap' }}>{error}</div>
+          <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+            <button
+              className="btn-small btn-primary"
+              onClick={() => loadUsers(false)}
+              style={{ fontSize: '12px' }}
+            >
+              🔄 Retry
+            </button>
+            <button
+              className="btn-small btn-secondary"
+              onClick={() => loadUsers(true)}
+              style={{ fontSize: '12px' }}
+            >
+              🔑 Refresh Token & Retry
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Statistics Cards */}
       <div className="users-stats">
@@ -317,31 +430,31 @@ export default function Users() {
 
       {/* Filter Buttons */}
       <div className="users-filters">
-        <button 
+        <button
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
           📋 All Users ({users.length})
         </button>
-        <button 
+        <button
           className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
           onClick={() => setFilter('active')}
         >
           ✅ Active ({stats.activeUsers})
         </button>
-        <button 
+        <button
           className={`filter-btn ${filter === 'suspended' ? 'active' : ''}`}
           onClick={() => setFilter('suspended')}
         >
           ⏸️ Suspended ({stats.suspendedUsers})
         </button>
-        <button 
+        <button
           className={`filter-btn ${filter === 'banned' ? 'active' : ''}`}
           onClick={() => setFilter('banned')}
         >
           🚫 Banned ({stats.bannedUsers})
         </button>
-        <button 
+        <button
           className={`filter-btn ${filter === 'admins' ? 'active' : ''}`}
           onClick={() => setFilter('admins')}
         >
@@ -373,8 +486,8 @@ export default function Users() {
         {selectedUser && (
           <div className="user-details">
             <div className="user-details-header">
-              <Avatar 
-                name={selectedUser.displayName || selectedUser.email} 
+              <Avatar
+                name={selectedUser.displayName || selectedUser.email}
                 photoURL={selectedUser.photoURL}
                 size="large"
               />
@@ -382,12 +495,12 @@ export default function Users() {
                 <h3>{selectedUser.displayName || 'Unknown'}</h3>
                 <p>{selectedUser.email}</p>
                 <div className="user-details-badges">
-                  <StatusBadge 
-                    status={selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)} 
+                  <StatusBadge
+                    status={selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)}
                     variant={getRoleVariant(selectedUser.role)}
                   />
-                  <StatusBadge 
-                    status={selectedUser.status.charAt(0).toUpperCase() + selectedUser.status.slice(1)} 
+                  <StatusBadge
+                    status={selectedUser.status.charAt(0).toUpperCase() + selectedUser.status.slice(1)}
                     variant={getUserStatusVariant(selectedUser.status)}
                   />
                 </div>
@@ -482,18 +595,24 @@ export default function Users() {
         <div className="edit-role-form">
           <div className="form-group">
             <label>Select Role:</label>
-            <select 
-              value={newRole} 
+            <select
+              value={newRole}
               onChange={(e) => setNewRole(e.target.value as any)}
               className="form-select"
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="superadmin">Super Admin</option>
+              <option value="buyer">Buyer</option>
+              <option value="creator">Creator</option>
+              <option value="admin" disabled={currentUser?.role !== 'superadmin'}>
+                Admin {currentUser?.role !== 'superadmin' && '(Superadmin only)'}
+              </option>
+              <option value="superadmin" disabled={currentUser?.role !== 'superadmin'}>
+                Super Admin {currentUser?.role !== 'superadmin' && '(Superadmin only)'}
+              </option>
             </select>
           </div>
           <div className="form-help">
-            <p><strong>User:</strong> Regular user with basic permissions</p>
+            <p><strong>Buyer:</strong> Regular buyer with basic permissions</p>
+            <p><strong>Creator:</strong> Creator account type with specialized permissions</p>
             <p><strong>Admin:</strong> Can manage orders and view analytics</p>
             <p><strong>Super Admin:</strong> Full access to all features</p>
           </div>
@@ -520,8 +639,8 @@ export default function Users() {
         <div className="change-status-form">
           <div className="form-group">
             <label>Select Status:</label>
-            <select 
-              value={newStatus} 
+            <select
+              value={newStatus}
               onChange={(e) => setNewStatus(e.target.value as any)}
               className="form-select"
             >
@@ -530,7 +649,7 @@ export default function Users() {
               <option value="banned">Banned</option>
             </select>
           </div>
-          
+
           {(newStatus === 'suspended' || newStatus === 'banned') && (
             <div className="form-group">
               <label>Reason (required):</label>

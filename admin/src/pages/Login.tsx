@@ -7,8 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGooglePopupLoading, setIsGooglePopupLoading] = useState(false);
-  const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = useState(false);
-  const { login, loginWithGoogle, loginWithGoogleRedirect, error } = useAuth();
+  const { login, loginWithGoogle, error } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,33 +34,58 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLoginRedirect = async () => {
-    setIsGoogleRedirectLoading(true);
-    
-    try {
-      await loginWithGoogleRedirect();
-      // Don't reset loading state here as redirect will navigate away
-    } catch (err) {
-      console.error('Google redirect login failed:', err);
-      setIsGoogleRedirectLoading(false);
-    }
-  };
 
   return (
     <div className="login-container">
+      <header className="login-header-bar">
+        <img
+          src={`${process.env.PUBLIC_URL || ''}/mixmi_logo_v2_160px.svg`}
+          alt="Mixmi logo"
+          className="login-header-logo"
+          width="46"
+          height="46"
+          loading="lazy"
+        />
+        <span style={{ fontFamily: 'Poppins', fontSize: '18px', fontWeight: 600 }}>Mixmi Admin</span>
+      </header>
+
+      <div className="login-content">
       <div className="login-box">
         <div className="login-header">
-          <h1>🎨 Mixmi Admin</h1>
+            <h1>Sign in to your account</h1>
           <p>Sign in to manage orders and users</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form" aria-label="Login form">
           {error && (
             <div className="error-message" role="alert" aria-live="polite">
               {error}
             </div>
           )}
 
+          <button 
+            onClick={handleGoogleLogin}
+            className="google-login-button"
+            disabled={isLoading || isGooglePopupLoading}
+            aria-label="Sign in with Google"
+          >
+            {isGooglePopupLoading ? (
+              <>
+                <span className="spinner-small"></span>
+                Signing in...
+              </>
+            ) : (
+              <>
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                Continue with Google
+              </>
+            )}
+          </button>
+
+          <div className="login-divider">
+            <span>or</span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="login-form" aria-label="Login form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -69,9 +93,9 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@mixmi.co"
+                placeholder="Enter your email"
               required
-              disabled={isLoading || isGooglePopupLoading || isGoogleRedirectLoading}
+                disabled={isLoading || isGooglePopupLoading}
               autoFocus
               autoComplete="email"
               aria-label="Email address"
@@ -87,7 +111,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              disabled={isLoading || isGooglePopupLoading || isGoogleRedirectLoading}
+                disabled={isLoading || isGooglePopupLoading}
               autoComplete="current-password"
               aria-label="Password"
             />
@@ -96,7 +120,7 @@ export default function Login() {
           <button 
             type="submit" 
             className="login-button"
-            disabled={isLoading || isGooglePopupLoading || isGoogleRedirectLoading}
+              disabled={isLoading || isGooglePopupLoading}
             aria-label="Sign in with email and password"
           >
             {isLoading ? (
@@ -110,44 +134,9 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="login-divider">
-          <span>or</span>
-        </div>
-
-        <button 
-          onClick={handleGoogleLogin}
-          className="google-login-button"
-          disabled={isLoading || isGooglePopupLoading || isGoogleRedirectLoading}
-          aria-label="Sign in with Google popup"
-        >
-          {isGooglePopupLoading ? (
-            <>
-              <span className="spinner-small"></span>
-              Signing in...
-            </>
-          ) : (
-            '🔐 Sign in with Google (Popup)'
-          )}
-        </button>
-
-        <button 
-          onClick={handleGoogleLoginRedirect}
-          className="google-login-button google-login-button-secondary"
-          disabled={isLoading || isGooglePopupLoading || isGoogleRedirectLoading}
-          aria-label="Sign in with Google redirect"
-        >
-          {isGoogleRedirectLoading ? (
-            <>
-              <span className="spinner-small"></span>
-              Redirecting...
-            </>
-          ) : (
-            '🔄 Sign in with Google (Redirect)'
-          )}
-        </button>
-
         <div className="login-footer">
           <p>Mixmi Order Management System</p>
+          </div>
         </div>
       </div>
     </div>

@@ -20,12 +20,13 @@
     "nodemailer": "^6.9.15"
   },
   "devDependencies": {
+    "@types/node": "^24.10.1",
     "@types/nodemailer": "^6.4.15",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "rimraf": "^5.0.5",
-    "typescript": "^5.4.5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }
-

@@ -277,7 +277,7 @@
 
     <script type="module">
         import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
-        import { getFirestore, doc, serverTimestamp, setDoc } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+        import { getFirestore, doc, getDoc, serverTimestamp, setDoc } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 
         // SECURITY NOTE: Firebase API keys are public by design for client-side apps.
         // Security is enforced through:
@@ -339,16 +339,43 @@
             const signupRef = doc(firestore, 'newsletter_signups', emailDocId);
 
             try {
+                // First, check if the document already exists
+                let docSnapshot;
+                try {
+                    docSnapshot = await getDoc(signupRef);
+                    if (docSnapshot.exists()) {
+                        console.log('[Newsletter] Email already exists:', normalizedEmail);
+                        return 'exists';
+                    }
+                } catch (readError) {
+                    // If read fails, we'll try to create anyway and let Firestore handle duplicates
+                    console.warn('[Newsletter] Could not check if email exists (read permission may not be available):', readError);
+                    // Continue to creation attempt
+                }
+
+                console.log('[Newsletter] Creating new subscription for:', normalizedEmail);
+                
+                // Document doesn't exist (or we couldn't check), create it
                 await setDoc(signupRef, {
                     email,
                     normalizedEmail,
                     source,
                     createdAt: serverTimestamp()
                 });
+                console.log('[Newsletter] Successfully created subscription for:', normalizedEmail);
                 return 'created';
             } catch (error) {
+                console.error('[Newsletter] Error saving email:', error);
+                
+                // If creation fails with permission-denied, it could mean:
+                // 1. The document already exists and updates aren't allowed
+                // 2. There's a permission issue with creating
                 if (error?.code === 'permission-denied') {
-                    return 'exists';
+                    // Since updates aren't allowed, if we get permission-denied on create,
+                    // it likely means the document already exists
+                    // However, this is not reliable - it could also be a real permission issue
+                    console.error('[Newsletter] Permission denied - document may already exist or there is a permission issue');
+                    throw new Error('Unable to process subscription. The email may already be subscribed or there is a permission issue.');
                 }
                 throw error;
             }
@@ -384,19 +411,33 @@
                 updateStatus(statusElement, 'Saving your email...', false);
 
                 try {
+                    console.log('[Newsletter] Attempting to subscribe email:', emailValue);
                     const saveResult = await saveEmail(emailValue, form.dataset.emailForm);
+                    console.log('[Newsletter] Save result:', saveResult);
 
                     if (saveResult === 'exists') {
+                        console.log('[Newsletter] Email already exists, showing message');
                         updateStatus(statusElement, 'Looks like you already subscribed with this email.', false);
                         form.reset();
                     } else {
+                        console.log('[Newsletter] Email subscribed successfully');
                         await sendWelcomeEmail(emailValue);
                         updateStatus(statusElement, 'Thanks! You are subscribed.', false);
                         form.reset();
                     }
                 } catch (error) {
-                    console.error('Failed to save email', error);
-                    updateStatus(statusElement, 'Sorry, something went wrong. Please try again.', true);
+                    console.error('[Newsletter] Failed to save email:', error);
+                    console.error('[Newsletter] Error details:', {
+                        code: error?.code,
+                        message: error?.message,
+                        stack: error?.stack
+                    });
+                    // Show specific error messages based on error type
+                    if (error.message && error.message.includes('Permission denied')) {
+                        updateStatus(statusElement, 'Sorry, there was a permission error. Please contact support.', true);
+                    } else {
+                        updateStatus(statusElement, 'Sorry, something went wrong. Please try again.', true);
+                    }
                 } finally {
                     setButtonState(submitButton, false);
                     emailInput.disabled = false;

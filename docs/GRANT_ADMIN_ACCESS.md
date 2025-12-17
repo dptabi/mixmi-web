@@ -150,3 +150,10 @@ After granting access, verify it worked:
 - Regularly audit admin users in Firebase Console
 - Consider implementing admin approval workflow for production
 
+
+
+
+
+
+
+

@@ -40,7 +40,9 @@ export function getRoleVariant(role: string): BadgeVariant {
       return 'danger';
     case 'admin':
       return 'warning';
-    case 'user':
+    case 'creator':
+      return 'success';
+    case 'buyer':
       return 'info';
     default:
       return 'neutral';

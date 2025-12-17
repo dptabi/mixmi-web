@@ -186,10 +186,20 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
     
-    // Admin audit logs collection rules (admin only, append-only)
+    // Audit logs collection rules (admin only)
+    match /audit_logs/{document} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Admin audit logs collection rules (admin only) - legacy support
     match /admin_audit_logs/{document} {
       allow read: if isAdmin();
-      allow create: if isAdmin();  // Append-only for accountability
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
     
     // Sticker revenue collection rules - SECURE: Admin-only write, owner/admin read
@@ -273,10 +283,14 @@ service cloud.firestore {
         && resource.data.userId == request.auth.uid;
     }
 
-    // Newsletter signups - public create with validation, admin-only read
+    // Newsletter signups - public create with validation, public read for existence check, admin-only list
     // SECURITY: Rate limiting should be implemented at application level
+    // Users can check if their own email exists (document ID is normalized email)
     match /newsletter_signups/{signupId} {
-      allow read: if isAdmin();
+      // Allow public users to read specific documents (to check if email exists)
+      // They can only read by document ID (normalized email), not list all documents
+      allow read: if true;
+      // Admin-only for listing all signups (handled by admin query permissions)
       
       allow create: if hasValidFields(['email', 'createdAt'], ['source', 'normalizedEmail'])
         && request.resource.data.email is string

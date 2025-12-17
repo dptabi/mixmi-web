@@ -1,24 +1,31 @@
 {
   "rules": {
     "users": {
+      ".read": "auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin' || auth.uid === 'RjywOZnmqyfgBqARqXX8o1ZDXpq2')",
       "$uid": {
-        ".read": "$uid === auth.uid || (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin'))",
-        ".write": "$uid === auth.uid || (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin'))",
-        ".validate": "newData.hasChildren(['id', 'email']) && newData.child('id').val() === $uid && newData.child('email').isString() && newData.child('email').val().length >= 5 && newData.child('email').val().length <= 100",
+        ".read": "$uid === auth.uid || (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin' || auth.uid === 'RjywOZnmqyfgBqARqXX8o1ZDXpq2'))",
+        ".write": "$uid === auth.uid || (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin' || auth.uid === 'RjywOZnmqyfgBqARqXX8o1ZDXpq2'))",
+        ".validate": "!newData.exists() || (!data.exists() && newData.hasChildren(['id', 'email']) && newData.child('id').val() === $uid && newData.child('email').isString() && newData.child('email').val().length >= 5 && newData.child('email').val().length <= 100) || ($uid === auth.uid && data.exists() && newData.hasChildren(['id', 'email']) && newData.child('id').val() === $uid && newData.child('email').val() === data.child('email').val()) || (data.exists() && auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin' || auth.uid === 'RjywOZnmqyfgBqARqXX8o1ZDXpq2'))",
         "id": {
-          ".validate": "newData.val() === $uid"
+          ".validate": "!newData.exists() || newData.val() === $uid"
         },
         "email": {
-          ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 100"
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length >= 5 && newData.val().length <= 100)"
         },
         "displayName": {
-          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 50"
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length >= 2 && newData.val().length <= 50)"
         },
         "role": {
-          ".validate": "$uid === auth.uid ? newData.val() === data.child('role').val() : (auth != null && (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin'))"
+          ".validate": "!newData.exists() || ($uid === auth.uid ? newData.val() === data.child('role').val() : (auth != null && ((newData.val() === 'admin' || newData.val() === 'superadmin') ? (auth.token.role === 'superadmin' || auth.uid === 'RjywOZnmqyfgBqARqXX8o1ZDXpq2') : (auth.token.admin === true || auth.token.role === 'admin' || auth.token.role === 'superadmin' || auth.uid === 'RjywOZnmqyfgBqARqXX8o1ZDXpq2'))))"
+        },
+        "status": {
+          ".validate": "!newData.exists() || (newData.isString() && (newData.val() === 'active' || newData.val() === 'suspended' || newData.val() === 'banned'))"
         },
         "createdAt": {
-          ".validate": "newData.val() === data.val() || !data.exists()"
+          ".validate": "!newData.exists() || newData.val() === data.val() || !data.exists()"
+        },
+        "updatedAt": {
+          ".validate": true
         },
         "$other": {
           ".validate": true
@@ -29,4 +36,3 @@
     ".write": false
   }
 }
-

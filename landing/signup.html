@@ -79,7 +79,7 @@
         .form-group input {
             width: 100%;
             padding: 14px 16px;
-            background: #fff;
+            background: #F5F5F5;
             border: 1px solid #000;
             border-radius: 12px;
             font-size: 16px;
@@ -92,10 +92,37 @@
             outline: none;
             transform: translateY(-2px);
             box-shadow: 0 4px 0 #000;
+            background: #fff;
         }
 
         .form-group input::placeholder {
             color: rgba(0, 0, 0, 0.5);
+        }
+
+        .checkbox-group {
+            margin-top: 8px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 400;
+            color: #000;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-top: 2px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .checkbox-label span {
+            line-height: 1.5;
         }
 
         .google-signin-btn {
@@ -262,8 +289,8 @@
     <div class="signup-container">
         <div class="signup-card">
             <div class="signup-header">
-                <h1>Create your account</h1>
-                <p>Sign up to use the Mixmi mobile app</p>
+                <h1>Join Mixmi</h1>
+                <p>Create your account to get started.</p>
             </div>
 
             <div class="error-message" id="errorMessage"></div>
@@ -278,12 +305,24 @@
 
             <form class="signup-form" id="signupForm">
                 <div class="form-group">
-                    <label for="name">Full Name</label>
+                    <label for="username">Username</label>
                     <input
                         type="text"
-                        id="name"
-                        name="name"
-                        placeholder="Enter your full name"
+                        id="username"
+                        name="username"
+                        placeholder="Choose a unique username"
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="displayName">Display Name</label>
+                    <input
+                        type="text"
+                        id="displayName"
+                        name="displayName"
+                        placeholder="Enter your display name"
                         required
                         autocomplete="name"
                     >
@@ -295,7 +334,7 @@
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="Enter your email"
+                        placeholder="Enter your email address"
                         required
                         autocomplete="email"
                     >
@@ -307,15 +346,40 @@
                         type="password"
                         id="password"
                         name="password"
-                        placeholder="Create a password"
+                        placeholder="Enter your password"
                         required
                         autocomplete="new-password"
                         minlength="6"
                     >
                 </div>
 
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Confirm your password"
+                        required
+                        autocomplete="new-password"
+                        minlength="6"
+                    >
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            required
+                        >
+                        <span>I agree to the Terms of Use and Privacy Policy</span>
+                    </label>
+                </div>
+
                 <button type="submit" class="submit-btn" id="submitBtn">
-                    Sign Up
+                    Create Account
                 </button>
             </form>
 
@@ -334,6 +398,12 @@
             GoogleAuthProvider,
             updateProfile
         } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
+        import { 
+            getDatabase, 
+            ref, 
+            set,
+            get
+        } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js';
 
         const firebaseConfig = window.mixmiFirebaseConfig ?? {
             apiKey: 'AIzaSyBq2rEwN3RskKxrZKG2PW8ofxlFNZLPHgg',
@@ -349,6 +419,7 @@
         const apps = getApps();
         const firebaseApp = apps.length ? apps[0] : initializeApp(firebaseConfig);
         const auth = getAuth(firebaseApp);
+        const database = getDatabase(firebaseApp);
         const googleProvider = new GoogleAuthProvider();
 
         const errorMessage = document.getElementById('errorMessage');
@@ -356,6 +427,8 @@
         const signupForm = document.getElementById('signupForm');
         const submitBtn = document.getElementById('submitBtn');
         const googleSignInBtn = document.getElementById('googleSignInBtn');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
 
         const showError = (message) => {
             errorMessage.textContent = message;
@@ -374,11 +447,67 @@
             successMessage.classList.remove('show');
         };
 
+        /**
+         * Create user entry in Realtime Database
+         */
+        const createUserInDatabase = async (user, username = null, displayName = null) => {
+            try {
+                // Ensure user is authenticated and token is available
+                if (!user || !user.uid) {
+                    throw new Error('User is not authenticated');
+                }
+
+                // Small delay to ensure auth token is propagated
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                const userRef = ref(database, `users/${user.uid}`);
+                
+                // Check if user already exists
+                let existingData = null;
+                try {
+                    const snapshot = await get(userRef);
+                    existingData = snapshot.val();
+                } catch (getError) {
+                    // If we can't read (permission denied), that's okay - we'll try to create
+                    console.log('Could not read existing user data (may not exist yet):', getError);
+                }
+                
+                // If user exists, preserve existing data like createdAt, role, status
+                // Only update fields that might have changed
+                const userData = {
+                    id: user.uid,
+                    email: user.email || '',
+                    displayName: displayName || user.displayName || existingData?.displayName || user.email?.split('@')[0] || 'User',
+                    username: username || existingData?.username || null,
+                    role: existingData?.role || 'buyer',
+                    status: existingData?.status || 'active',
+                    createdAt: existingData?.createdAt || Date.now(),
+                    updatedAt: Date.now()
+                };
+
+                console.log('Attempting to write user data to Realtime Database:', {
+                    uid: user.uid,
+                    email: userData.email,
+                    hasAuth: !!auth.currentUser
+                });
+
+                await set(userRef, userData);
+                console.log('✅ Created/updated user entry in Realtime Database:', userData);
+                return userData;
+            } catch (error) {
+                console.error('Error creating user in Realtime Database:', error);
+                console.error('Error code:', error?.code);
+                console.error('Error message:', error?.message);
+                // Re-throw so caller can handle it appropriately
+                throw error;
+            }
+        };
+
         const handleSignupSuccess = (user) => {
             showSuccess('Account created successfully! You can now use this account to sign in to the Mixmi mobile app.');
             signupForm.reset();
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Sign Up';
+            submitBtn.textContent = 'Create Account';
             googleSignInBtn.disabled = false;
             googleSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Continue with Google';
         };
@@ -390,6 +519,22 @@
                 googleSignInBtn.textContent = 'Signing in...';
 
                 const result = await signInWithPopup(auth, googleProvider);
+                
+                // Create user entry in Realtime Database
+                try {
+                    await createUserInDatabase(result.user);
+                    console.log('✅ User entry created in Realtime Database');
+                } catch (dbError) {
+                    console.error('❌ Could not create user in Realtime Database:', dbError);
+                    console.error('Error details:', {
+                        code: dbError?.code,
+                        message: dbError?.message,
+                        stack: dbError?.stack
+                    });
+                    // Show warning to user but don't block success
+                    showError(`Account created, but there was an issue saving your profile. Error: ${dbError?.message || dbError?.code || 'Unknown error'}. Please contact support if this persists.`);
+                }
+                
                 handleSignupSuccess(result.user);
             } catch (error) {
                 console.error('Google sign in error:', error);
@@ -408,24 +553,65 @@
             }
         });
 
+
         signupForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             
             try {
                 hideMessages();
+                
+                const username = document.getElementById('username').value.trim();
+                const displayName = document.getElementById('displayName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const termsAccepted = document.getElementById('terms').checked;
+
+                // Validation
+                if (!username) {
+                    showError('Please enter a username.');
+                    return;
+                }
+
+                if (!displayName) {
+                    showError('Please enter a display name.');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match. Please try again.');
+                    return;
+                }
+
+                if (!termsAccepted) {
+                    showError('Please agree to the Terms of Use and Privacy Policy.');
+                    return;
+                }
+
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Creating account...';
 
-                const name = document.getElementById('name').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 
-                if (name) {
+                if (displayName) {
                     await updateProfile(userCredential.user, {
-                        displayName: name
+                        displayName: displayName
                     });
+                }
+
+                // Create user entry in Realtime Database
+                try {
+                    await createUserInDatabase(userCredential.user, username, displayName);
+                    console.log('✅ User entry created in Realtime Database');
+                } catch (dbError) {
+                    console.error('❌ Could not create user in Realtime Database:', dbError);
+                    console.error('Error details:', {
+                        code: dbError?.code,
+                        message: dbError?.message,
+                        stack: dbError?.stack
+                    });
+                    // Show warning to user but don't block success
+                    showError(`Account created, but there was an issue saving your profile. Error: ${dbError?.message || dbError?.code || 'Unknown error'}. Please contact support if this persists.`);
                 }
 
                 handleSignupSuccess(userCredential.user);
@@ -443,7 +629,7 @@
 
                 showError(errorMsg);
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign Up';
+                submitBtn.textContent = 'Create Account';
             }
         });
     </script>

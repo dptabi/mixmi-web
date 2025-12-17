@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
 import Users from './pages/Users';
+import AuditLogs from './pages/AuditLogs';
 import Sidebar from './components/Sidebar';
 import './App.css';
 
@@ -35,17 +36,12 @@ function App() {
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
-      
+
       <main className={`app-main ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'orders' && <Orders />}
         {activeTab === 'users' && <Users />}
-        {activeTab === 'analytics' && (
-          <div className="coming-soon">
-            <h2>📈 Analytics</h2>
-            <p>Advanced analytics and reporting coming soon!</p>
-          </div>
-        )}
+        {activeTab === 'audit-logs' && <AuditLogs />}
       </main>
     </div>
   );
