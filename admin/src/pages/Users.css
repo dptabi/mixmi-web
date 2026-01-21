@@ -28,22 +28,44 @@
   }
 }
 
-.users-stats {
-  padding: 24px 32px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+.users-toolbar {
+  background: white;
+  padding: 20px 32px;
+  border-bottom: 1px solid #000;
 }
 
-.users-filters {
-  padding: 0 32px 24px 32px;
+.users-toolbar .search-input {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 16px;
+  border: 1px solid #000;
+  border-radius: 12px;
+  font-size: 14px;
+  transition: transform 0.1s, box-shadow 0.1s;
+  margin-bottom: 16px;
+  background: white;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
+  font-family: inherit;
+}
+
+.users-toolbar .search-input:focus {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #000;
+}
+
+.users-toolbar .search-input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.users-toolbar .filter-buttons {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .filter-btn {
-  padding: 10px 20px;
+  padding: 10px 16px;
   border: 1px solid #000;
   background: white;
   border-radius: 12px;
@@ -55,6 +77,9 @@
     transform 0.3s var(--cta-transition-bezier),
     box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .filter-btn:hover,
@@ -74,9 +99,69 @@
   color: #000;
 }
 
-.data-table-container {
-  padding: 0 32px 32px 32px;
-  margin: 0;
+.users-table-body {
+  background: white;
+  border: 1px solid #000;
+  border-radius: 24px;
+  margin: 24px 32px 32px 32px;
+  overflow: hidden;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table thead {
+  background: #D0CDF5;
+}
+
+.users-table thead tr {
+  border-bottom: 1px solid #000;
+}
+
+.users-table th {
+  padding: 16px 24px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.users-table th:last-child {
+  padding-right: 24px;
+}
+
+.users-table tbody tr {
+  border-bottom: 1px solid #000;
+}
+
+.users-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.users-table tbody tr.clickable {
+  cursor: pointer;
+}
+
+.users-table td {
+  padding: 16px 24px;
+  font-size: 14px;
+  color: #000;
+  vertical-align: middle;
+}
+
+.users-table td:last-child {
+  padding-right: 24px;
+}
+
+.users-table-empty {
+  padding: 48px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
 }
 
 .user-cell {
@@ -115,7 +200,8 @@
 .action-buttons {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .btn-small {
@@ -130,6 +216,9 @@
     box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .btn-small:hover,
@@ -181,6 +270,12 @@
 }
 
 .btn-warning {
+  background: white;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.btn-action {
   background: white;
   color: #000;
   border: 1px solid #000;
@@ -466,9 +561,12 @@
     padding: 0 16px 16px 16px;
   }
 
-  .data-table-container {
-    padding: 0 16px 16px 16px;
-    margin: 0;
+  .users-table-header {
+    margin: 24px 16px 0 16px;
+  }
+
+  .users-table-body {
+    margin: 0 16px 32px 16px;
   }
 
   .user-details-header {

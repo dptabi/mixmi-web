@@ -11,9 +11,11 @@ import {
   deleteAuditLog,
   exportAuditLogsToCSV,
 } from '../services/auditLogService';
+import { useAuth } from '../hooks/useAuth';
 import './AuditLogs.css';
 
 export default function AuditLogs() {
+  const { user, refreshToken } = useAuth();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,10 +35,23 @@ export default function AuditLogs() {
   const [editResourceId, setEditResourceId] = useState('');
   const [editDetails, setEditDetails] = useState('');
 
-  const loadLogs = async () => {
+  const loadLogs = React.useCallback(async () => {
     try {
       setLoading(true);
       console.log('Loading audit logs...');
+      
+      // Refresh token to ensure we have latest claims
+      if (user) {
+        console.log('Refreshing authentication token...');
+        await refreshToken();
+        console.log('Current user:', {
+          email: user.email,
+          uid: user.uid,
+          role: (user as any).role,
+          isAdmin: (user as any).isAdmin
+        });
+      }
+      
       const result = await fetchAuditLogs(100);
       console.log('Fetched audit logs:', result.logs.length, result.logs);
       setLogs(result.logs);
@@ -44,9 +59,10 @@ export default function AuditLogs() {
 
       if (result.logs.length === 0) {
         console.warn('No audit logs found. This could mean:');
-        console.warn('1. The collection is empty');
-        console.warn('2. Permission denied (check Firestore rules)');
+        console.warn('1. The collection is empty (no logs have been created yet)');
+        console.warn('2. Permission denied (check Firestore rules and token claims)');
         console.warn('3. Query failed (check browser console for errors)');
+        console.warn('Try clicking "Create Test Log" to verify write permissions');
       }
     } catch (error: any) {
       console.error('Error loading audit logs:', error);
@@ -55,15 +71,22 @@ export default function AuditLogs() {
         message: error?.message,
         stack: error?.stack
       });
-      alert(`Failed to load audit logs: ${error?.message || 'Unknown error'}. Check browser console for details.`);
+      
+      // Show user-friendly error message
+      const errorMessage = error?.message || 'Unknown error';
+      if (errorMessage.includes('permission') || errorMessage.includes('Permission')) {
+        alert(`❌ Permission Denied: ${errorMessage}\n\nPlease ensure:\n1. Your account has admin/superadmin role\n2. Your token has been refreshed\n3. Firestore rules allow admin access`);
+      } else {
+        alert(`Failed to load audit logs: ${errorMessage}. Check browser console for details.`);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, refreshToken]);
 
   useEffect(() => {
     loadLogs();
-  }, []);
+  }, [loadLogs]);
 
   const filterLogs = React.useCallback(() => {
     let filtered = [...logs];
@@ -177,18 +200,33 @@ export default function AuditLogs() {
 
   const handleCreateTestLog = async () => {
     try {
-      await createAuditLog({
+      // Refresh token first to ensure we have latest claims
+      if (user) {
+        await refreshToken();
+      }
+      
+      console.log('Creating test audit log...');
+      const logId = await createAuditLog({
         action: 'test',
         resourceType: 'audit_log',
         resourceId: 'test',
         details: { message: 'Test audit log created from admin panel' },
         metadata: { source: 'admin_panel', test: true },
       });
-      alert('✅ Test audit log created successfully!');
-      loadLogs();
-    } catch (error) {
+      console.log('Test audit log created with ID:', logId);
+      alert('✅ Test audit log created successfully! Refreshing list...');
+      // Wait a moment for Firestore to sync, then reload
+      setTimeout(() => {
+        loadLogs();
+      }, 1000);
+    } catch (error: any) {
       console.error('Error creating test audit log:', error);
-      alert('❌ Failed to create test audit log');
+      const errorMessage = error?.message || 'Unknown error';
+      if (errorMessage.includes('permission') || errorMessage.includes('Permission')) {
+        alert(`❌ Permission Denied: ${errorMessage}\n\nYou may need to:\n1. Ensure your account has admin/superadmin role\n2. Sign out and sign back in\n3. Check Firestore rules`);
+      } else {
+        alert(`❌ Failed to create test audit log: ${errorMessage}`);
+      }
     }
   };
 
@@ -299,36 +337,36 @@ export default function AuditLogs() {
         />
 
         <div className="filter-buttons">
-          <button
-            onClick={() => setFilter('all')}
+        <button
+          onClick={() => setFilter('all')}
             className={filter === 'all' ? 'active' : ''}
-          >
-            📋 All ({logs.length})
-          </button>
-          <button
-            onClick={() => setFilter('create')}
+        >
+          📋 All ({logs.length})
+        </button>
+        <button
+          onClick={() => setFilter('create')}
             className={filter === 'create' ? 'active' : ''}
-          >
-            ➕ Create ({logs.filter((l) => l.action.toLowerCase() === 'create').length})
-          </button>
-          <button
-            onClick={() => setFilter('update')}
+        >
+          ➕ Create ({logs.filter((l) => l.action.toLowerCase() === 'create').length})
+        </button>
+        <button
+          onClick={() => setFilter('update')}
             className={filter === 'update' ? 'active' : ''}
-          >
-            ✏️ Update ({logs.filter((l) => l.action.toLowerCase() === 'update').length})
-          </button>
-          <button
-            onClick={() => setFilter('delete')}
+        >
+          ✏️ Update ({logs.filter((l) => l.action.toLowerCase() === 'update').length})
+        </button>
+        <button
+          onClick={() => setFilter('delete')}
             className={filter === 'delete' ? 'active' : ''}
-          >
-            🗑️ Delete ({logs.filter((l) => l.action.toLowerCase() === 'delete').length})
-          </button>
-          <button
-            onClick={() => setFilter('read')}
+        >
+          🗑️ Delete ({logs.filter((l) => l.action.toLowerCase() === 'delete').length})
+        </button>
+        <button
+          onClick={() => setFilter('read')}
             className={filter === 'read' ? 'active' : ''}
-          >
-            👁️ Read ({logs.filter((l) => l.action.toLowerCase() === 'read').length})
-          </button>
+        >
+          👁️ Read ({logs.filter((l) => l.action.toLowerCase() === 'read').length})
+        </button>
         </div>
       </div>
 

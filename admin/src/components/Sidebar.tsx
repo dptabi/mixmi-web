@@ -28,13 +28,13 @@ const menuItems: MenuItem[] = [
   { id: 'audit-logs', label: 'Audit Logs', icon: '📋' },
 ];
 
-export default function Sidebar({
-  activeTab,
-  onTabChange,
-  user,
+export default function Sidebar({ 
+  activeTab, 
+  onTabChange, 
+  user, 
   onLogout,
   isCollapsed,
-  onToggleCollapse
+  onToggleCollapse 
 }: SidebarProps) {
   const userName = user.displayName || user.email?.split('@')[0] || 'Admin';
 
@@ -51,7 +51,7 @@ export default function Sidebar({
               height="46"
             />
           </div>
-          <button
+          <button 
             className="sidebar-toggle"
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -76,8 +76,8 @@ export default function Sidebar({
 
         <div className="sidebar-footer">
           <div className="sidebar-user">
-            <Avatar
-              name={userName}
+            <Avatar 
+              name={userName} 
               photoURL={user.photoURL || undefined}
               size="medium"
             />

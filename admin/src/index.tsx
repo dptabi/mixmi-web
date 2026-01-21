@@ -9,7 +9,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <div className="admin-dashboard">
+      <App />
+    </div>
   </React.StrictMode>
 );
 

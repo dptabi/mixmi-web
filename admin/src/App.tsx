@@ -7,6 +7,7 @@ import Users from './pages/Users';
 import AuditLogs from './pages/AuditLogs';
 import Sidebar from './components/Sidebar';
 import './App.css';
+import './no_hover.css';
 
 function App() {
   const { user, loading, logout } = useAuth();

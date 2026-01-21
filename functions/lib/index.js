@@ -2,6 +2,21 @@ import nodemailer from 'nodemailer';
 import { logger } from 'firebase-functions';
 import { onRequest } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
+import { initializeApp, getApps } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getStorage } from 'firebase-admin/storage';
+// Initialize Firebase Admin if not already initialized
+// In Cloud Functions v2, initializeApp() without params automatically uses
+// the default service account credentials for the project where the function is deployed
+try {
+    if (getApps().length === 0) {
+        initializeApp();
+    }
+}
+catch (error) {
+    // Admin might already be initialized, ignore error
+    console.warn('Firebase Admin initialization check:', error);
+}
 const emailSmtpHost = defineSecret('EMAIL_SMTP_HOST');
 const emailSmtpPort = defineSecret('EMAIL_SMTP_PORT');
 const emailUsername = defineSecret('EMAIL_USERNAME');
@@ -58,12 +73,14 @@ const createTransporter = (config) => nodemailer.createTransport({
     }
 });
 const isValidEmail = (value) => typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-// Allowed origins - remove localhost for production
+// Allowed origins - shared across all functions
 const allowedOrigins = [
     'https://mixmi.co',
     'https://mixmi-66529.web.app',
     'https://mixmi-66529.firebaseapp.com',
-    // 'http://localhost:4173' // Only for local development - remove in production
+    'https://admin.mixmi.co',
+    'http://localhost:3000', // For local development
+    'http://localhost:4173' // For local development
 ];
 // Simple rate limiting store (in-memory, resets on function restart)
 // For production, consider using Redis or Firebase Realtime Database
@@ -153,6 +170,146 @@ Glad to have you with us.
     catch (error) {
         logger.error(`[sendWelcomeEmail] Failed to send email to ${targetEmail}`, error);
         response.status(500).json({ error: 'Failed to send email' });
+    }
+});
+// Helper to check if user is admin
+const isAdmin = (token) => {
+    return token.admin === true || token.role === 'admin' || token.role === 'superadmin';
+};
+const sanitizeDownloadFilename = (value) => {
+    return value
+        .replace(/[\r\n"]/g, '')
+        .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
+        .trim()
+        .slice(0, 200) || 'download';
+};
+// Helper function to set CORS headers
+const setCorsHeaders = (request, response) => {
+    const origin = request.get('origin');
+    if (origin && allowedOrigins.includes(origin)) {
+        response.set('Access-Control-Allow-Origin', origin);
+    }
+    else if (origin) {
+        logger.warn(`[downloadStorageFile] Blocked request from unauthorized origin: ${origin}`);
+    }
+    response.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    response.set('Access-Control-Max-Age', '3600');
+};
+// Download proxy for admin users - bypasses CORS
+export const downloadStorageFile = onRequest({
+    cors: allowedOrigins,
+    region: 'us-central1',
+    invoker: 'public', // Public but requires auth token
+}, async (request, response) => {
+    const origin = request.get('origin');
+    const method = request.method;
+    logger.info(`[downloadStorageFile] ${method} request from origin: ${origin || 'none'}`);
+    // Set CORS headers on all responses
+    setCorsHeaders(request, response);
+    // Handle OPTIONS preflight request
+    if (method === 'OPTIONS') {
+        logger.info('[downloadStorageFile] Handling OPTIONS preflight request');
+        response.status(204).send('');
+        return;
+    }
+    try {
+        // Verify authentication
+        const authHeader = request.get('Authorization');
+        const tokenFromHeader = typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+            ? authHeader.split('Bearer ')[1]
+            : null;
+        const tokenFromQuery = typeof request.query.token === 'string' ? request.query.token : null;
+        const idToken = tokenFromHeader || tokenFromQuery;
+        if (!idToken) {
+            logger.warn('[downloadStorageFile] Missing auth token (header or query)');
+            response.status(401).json({ error: 'Unauthorized: Missing auth token' });
+            return;
+        }
+        let decodedToken;
+        try {
+            // Verify token with explicit project ID check
+            decodedToken = await getAuth().verifyIdToken(idToken, true); // Check revoked tokens
+        }
+        catch (error) {
+            logger.error('[downloadStorageFile] Token verification failed:', {
+                error: error.message,
+                code: error.code,
+                name: error.name,
+                tokenLength: idToken.length,
+                tokenPrefix: idToken.substring(0, 20),
+                fullError: error.toString()
+            });
+            // Return detailed error in response for debugging
+            const errorDetails = {
+                error: 'Unauthorized: Invalid token',
+                code: error.code || 'unknown',
+                message: error.message || 'Token verification failed'
+            };
+            // Include more details in development
+            if (process.env.NODE_ENV !== 'production') {
+                errorDetails.tokenLength = idToken.length;
+                errorDetails.errorName = error.name;
+            }
+            response.status(401).json(errorDetails);
+            return;
+        }
+        // Verify admin status
+        if (!isAdmin(decodedToken)) {
+            logger.warn(`[downloadStorageFile] Non-admin user attempted download: ${decodedToken.uid}, origin: ${origin || 'none'}`);
+            response.status(403).json({ error: 'Forbidden: Admin access required' });
+            return;
+        }
+        // Get storage path from query parameter
+        const storagePath = request.query.path;
+        if (!storagePath) {
+            logger.warn(`[downloadStorageFile] Missing storage path parameter, origin: ${origin || 'none'}`);
+            response.status(400).json({ error: 'Bad request: Missing storage path' });
+            return;
+        }
+        // Validate path (prevent path traversal)
+        if (storagePath.includes('..') || !storagePath.startsWith('exports/')) {
+            logger.warn(`[downloadStorageFile] Invalid storage path attempted: ${storagePath}, origin: ${origin || 'none'}`);
+            response.status(400).json({ error: 'Bad request: Invalid storage path' });
+            return;
+        }
+        logger.info(`[downloadStorageFile] Admin ${decodedToken.uid} downloading: ${storagePath}, origin: ${origin || 'none'}`);
+        // Get file from Firebase Storage
+        const bucket = getStorage().bucket();
+        const file = bucket.file(storagePath);
+        // Check if file exists
+        const [exists] = await file.exists();
+        if (!exists) {
+            logger.warn(`[downloadStorageFile] File not found: ${storagePath}, origin: ${origin || 'none'}`);
+            response.status(404).json({ error: 'File not found' });
+            return;
+        }
+        // Get file metadata
+        const [metadata] = await file.getMetadata();
+        const contentType = metadata.contentType || 'application/octet-stream';
+        const requestedFilename = typeof request.query.filename === 'string' ? request.query.filename : '';
+        const fallbackFilename = storagePath.split('/').pop() || 'download';
+        const safeFilename = sanitizeDownloadFilename(requestedFilename || fallbackFilename);
+        const contentDisposition = `attachment; filename="${safeFilename}"`;
+        // Set headers
+        response.set('Content-Type', contentType);
+        response.set('Content-Disposition', contentDisposition);
+        response.set('Cache-Control', 'private, max-age=3600');
+        // Stream file to response
+        const stream = file.createReadStream();
+        stream.pipe(response);
+        stream.on('error', (error) => {
+            logger.error(`[downloadStorageFile] Error streaming file ${storagePath}:`, error);
+            if (!response.headersSent) {
+                response.status(500).json({ error: 'Failed to download file' });
+            }
+        });
+    }
+    catch (error) {
+        logger.error(`[downloadStorageFile] Unexpected error, origin: ${origin || 'none'}, method: ${method}:`, error);
+        if (!response.headersSent) {
+            response.status(500).json({ error: 'Internal server error' });
+        }
     }
 });
 //# sourceMappingURL=index.js.map

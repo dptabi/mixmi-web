@@ -199,7 +199,6 @@ export async function fetchUsers(): Promise<User[]> {
  */
 export function subscribeToUsers(callback: (users: User[]) => void): () => void {
   let unsubscribe: (() => void) | null = null;
-  let isSubscribed = false;
 
   // Refresh token and verify claims before subscribing
   const setupSubscription = async () => {

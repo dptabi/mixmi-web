@@ -1,5 +1,6 @@
 import { collection, query, getDocs, orderBy, deleteDoc, doc, updateDoc, addDoc, Timestamp, where, limit, startAfter, QueryDocumentSnapshot, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import { getIdToken } from 'firebase/auth';
 
 export interface AuditLog {
   id: string;
@@ -31,6 +32,22 @@ export async function createAuditLog(data: {
   metadata?: any;
 }): Promise<string> {
   try {
+    // Ensure token is fresh and check claims for debugging
+    if (auth.currentUser) {
+      try {
+        await getIdToken(auth.currentUser, true);
+        const tokenResult = await auth.currentUser.getIdTokenResult(true);
+        console.log('Token claims for audit log creation:', {
+          admin: tokenResult.claims.admin,
+          role: tokenResult.claims.role,
+          uid: auth.currentUser.uid,
+          email: auth.currentUser.email
+        });
+      } catch (tokenError) {
+        console.error('Error refreshing token:', tokenError);
+      }
+    }
+
     const currentUser = auth.currentUser;
     const auditLogsRef = collection(db, 'audit_logs');
 
@@ -52,6 +69,15 @@ export async function createAuditLog(data: {
     return docRef.id;
   } catch (error: any) {
     console.error('Error creating audit log:', error);
+    console.error('Error code:', error?.code);
+    console.error('Error message:', error?.message);
+
+    if (error?.code === 'permission-denied') {
+      const errorMsg = `Permission denied: You do not have permission to create audit logs. Please ensure your account has admin/superadmin privileges. Error: ${error?.message || 'Unknown error'}`;
+      console.error('PERMISSION DENIED:', errorMsg);
+      throw new Error(errorMsg);
+    }
+
     throw new Error(`Failed to create audit log: ${error?.message || 'Unknown error'}`);
   }
 }
@@ -64,6 +90,22 @@ export async function fetchAuditLogs(
   lastDoc?: QueryDocumentSnapshot
 ): Promise<{ logs: AuditLog[]; lastDoc?: QueryDocumentSnapshot }> {
   try {
+    // Ensure token is fresh and check claims for debugging
+    if (auth.currentUser) {
+      try {
+        await getIdToken(auth.currentUser, true);
+        const tokenResult = await auth.currentUser.getIdTokenResult(true);
+        console.log('Token claims for audit logs access:', {
+          admin: tokenResult.claims.admin,
+          role: tokenResult.claims.role,
+          uid: auth.currentUser.uid,
+          email: auth.currentUser.email
+        });
+      } catch (tokenError) {
+        console.error('Error refreshing token:', tokenError);
+      }
+    }
+
     const auditLogsRef = collection(db, 'audit_logs');
     let q;
 
@@ -218,11 +260,27 @@ export async function fetchAuditLogs(
     }
   } catch (error: any) {
     console.error('Error fetching audit logs:', error);
-    // Return empty array instead of throwing if it's a permission or collection doesn't exist
-    if (error?.code === 'permission-denied' || error?.code === 'not-found') {
-      console.warn('No audit logs found or permission denied, returning empty array');
+    console.error('Error code:', error?.code);
+    console.error('Error message:', error?.message);
+
+    // Check for permission denied specifically
+    if (error?.code === 'permission-denied') {
+      console.error('PERMISSION DENIED: User does not have access to audit_logs collection');
+      console.error('Please verify:');
+      console.error('1. User has admin/superadmin role in custom claims');
+      console.error('2. Token has been refreshed (should have admin=true or role=admin/superadmin)');
+      console.error('3. Firestore rules allow isAdmin() access');
+
+      // Still throw so UI can show proper error
+      throw new Error(`Permission denied: You do not have access to audit logs. Please ensure your account has admin privileges. Error: ${error?.message || 'Unknown error'}`);
+    }
+
+    // Return empty array only for not-found (collection doesn't exist yet)
+    if (error?.code === 'not-found') {
+      console.warn('Collection not found, returning empty array');
       return { logs: [], lastDoc: undefined };
     }
+
     throw new Error(`Failed to fetch audit logs: ${error?.message || 'Unknown error'}`);
   }
 }
@@ -368,5 +426,9 @@ export function exportAuditLogsToCSV(logs: AuditLog[]): string {
 
   return csvContent;
 }
+
+
+
+
 
 

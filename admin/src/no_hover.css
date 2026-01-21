@@ -1,0 +1,70 @@
+/*
+  Admin-only: remove hover visual effects (no hover lift/scale/shadow/highlight).
+  Keep non-hover animations/transitions (spinner, sidebar collapse, etc.).
+  Keep keyboard focus styles (:focus-visible / :focus-within) intact.
+*/
+
+.admin-dashboard .filter-buttons button:hover,
+.admin-dashboard .btn-outline:hover,
+.admin-dashboard .btn-primary:hover,
+.admin-dashboard .view-details-button:hover,
+.admin-dashboard .mark-paid-button:hover,
+.admin-dashboard .cancel-button:hover,
+.admin-dashboard .delete-button:hover,
+.admin-dashboard .close-button:hover,
+.admin-dashboard .close-modal-button:hover,
+.admin-dashboard .asset-download-button:hover,
+.admin-dashboard .filter-btn:hover,
+.admin-dashboard .btn-small:hover,
+.admin-dashboard .topbar-actions button:hover,
+.admin-dashboard .sidebar-toggle:hover,
+.admin-dashboard .sidebar-logout:hover,
+.admin-dashboard .modal-close-button:hover,
+.admin-dashboard .period-select:hover,
+.admin-dashboard .metric-card:hover,
+.admin-dashboard .analytics-card:hover,
+.admin-dashboard .recent-orders-card:hover,
+.admin-dashboard .data-table-container:hover,
+.admin-dashboard .stat-card:hover,
+.admin-dashboard .login-button:hover:not(:disabled),
+.admin-dashboard .google-login-button:hover:not(:disabled),
+.admin-dashboard .action-btn:hover {
+  transform: none !important;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Sidebar nav hover highlight */
+.admin-dashboard .sidebar-nav-item:not(.active):hover {
+  background-color: transparent !important;
+  color: #666 !important;
+}
+
+/* DataTable hover highlights */
+.admin-dashboard .data-table tbody tr:hover,
+.admin-dashboard .data-table tbody tr.clickable:hover {
+  background-color: transparent !important;
+}
+
+.admin-dashboard .data-table th.sortable:hover {
+  background-color: transparent !important;
+}
+
+/* Dashboard recent orders row hover highlight */
+.admin-dashboard .table-row:hover {
+  background: transparent !important;
+}
+
+/* Audit logs: modal buttons and action buttons should not change on hover */
+.admin-dashboard .btn-secondary:hover {
+  background: #fff !important;
+}
+
+.admin-dashboard .btn-danger:hover {
+  background: #fee !important;
+}
+
+.admin-dashboard .action-btn.delete-btn:hover {
+  background: #fff !important;
+  border-color: #ddd !important;
+}
+

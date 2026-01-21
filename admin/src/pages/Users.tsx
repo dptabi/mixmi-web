@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import Avatar from '../components/Avatar';
 import StatusBadge, { getUserStatusVariant, getRoleVariant } from '../components/StatusBadge';
-import DataTable, { Column } from '../components/DataTable';
+import { Column } from '../components/DataTable';
 import Modal from '../components/Modal';
-import StatCard from '../components/StatCard';
 import TopBar from '../components/TopBar';
 import { useAuth } from '../hooks/useAuth';
 import {
@@ -301,13 +300,13 @@ export default function Users() {
       width: '200px',
       render: (user) => (
         <div className="action-buttons">
-          <button className="btn-small btn-primary" onClick={(e) => { e.stopPropagation(); handleUserClick(user); }}>
+          <button className="btn-small btn-action" onClick={(e) => { e.stopPropagation(); handleUserClick(user); }}>
             👁️ View
           </button>
-          <button className="btn-small btn-secondary" onClick={(e) => { e.stopPropagation(); handleEditRole(user); }}>
+          <button className="btn-small btn-action" onClick={(e) => { e.stopPropagation(); handleEditRole(user); }}>
             👤 Role
           </button>
-          <button className="btn-small btn-warning" onClick={(e) => { e.stopPropagation(); handleChangeStatus(user); }}>
+          <button className="btn-small btn-action" onClick={(e) => { e.stopPropagation(); handleChangeStatus(user); }}>
             🔒 Status
           </button>
         </div>
@@ -331,13 +330,8 @@ export default function Users() {
       <TopBar
         title="User Management"
         subtitle={`${filteredUsers.length} users ${filter !== 'all' ? `(${filter})` : ''}`}
-        searchPlaceholder="Search by name, email, or ID..."
-        onSearch={setSearchTerm}
         actions={
           <>
-            <button className="btn-outline" onClick={() => loadUsers(false)}>
-              🔄 Refresh
-            </button>
             <button className="btn-outline" onClick={() => loadUsers(true)} title="Refresh token and retry">
               🔑 Refresh Token & Retry
             </button>
@@ -382,94 +376,87 @@ export default function Users() {
         </div>
       )}
 
-      {/* Statistics Cards */}
-      <div className="users-stats">
-        <StatCard
-          title="Total Users"
-          value={stats.totalUsers}
-          icon="👥"
-          color="#3B82F6"
-          trend={{ value: `${stats.newToday} today`, isPositive: true }}
+      {/* Search and Filter Toolbar */}
+      <div className="users-toolbar">
+        <input
+          type="text"
+          placeholder="Search by name, email, or ID..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
         />
-        <StatCard
-          title="Active Users"
-          value={stats.activeUsers}
-          icon="✅"
-          color="#10B981"
-          subtitle="Currently active"
-        />
-        <StatCard
-          title="Suspended"
-          value={stats.suspendedUsers}
-          icon="⏸️"
-          color="#F59E0B"
-          subtitle="Temporarily suspended"
-        />
-        <StatCard
-          title="Banned"
-          value={stats.bannedUsers}
-          icon="🚫"
-          color="#EF4444"
-          subtitle="Permanently banned"
-        />
-        <StatCard
-          title="Administrators"
-          value={stats.admins}
-          icon="👑"
-          color="#8B5CF6"
-          subtitle="Admin & Super Admin"
-        />
-        <StatCard
-          title="New Today"
-          value={stats.newToday}
-          icon="🆕"
-          color="#EC4899"
-          subtitle="Registered in last 24h"
-        />
-      </div>
-
-      {/* Filter Buttons */}
-      <div className="users-filters">
-        <button
-          className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          📋 All Users ({users.length})
-        </button>
-        <button
-          className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
-          onClick={() => setFilter('active')}
-        >
-          ✅ Active ({stats.activeUsers})
-        </button>
-        <button
-          className={`filter-btn ${filter === 'suspended' ? 'active' : ''}`}
-          onClick={() => setFilter('suspended')}
-        >
-          ⏸️ Suspended ({stats.suspendedUsers})
-        </button>
-        <button
-          className={`filter-btn ${filter === 'banned' ? 'active' : ''}`}
-          onClick={() => setFilter('banned')}
-        >
-          🚫 Banned ({stats.bannedUsers})
-        </button>
-        <button
-          className={`filter-btn ${filter === 'admins' ? 'active' : ''}`}
-          onClick={() => setFilter('admins')}
-        >
-          👑 Admins ({stats.admins})
-        </button>
+        <div className="filter-buttons">
+          <button
+            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            📋 All Users ({users.length})
+          </button>
+          <button
+            className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
+            onClick={() => setFilter('active')}
+          >
+            ✅ Active ({stats.activeUsers})
+          </button>
+          <button
+            className={`filter-btn ${filter === 'suspended' ? 'active' : ''}`}
+            onClick={() => setFilter('suspended')}
+          >
+            ⏸️ Suspended ({stats.suspendedUsers})
+          </button>
+          <button
+            className={`filter-btn ${filter === 'banned' ? 'active' : ''}`}
+            onClick={() => setFilter('banned')}
+          >
+            🚫 Banned ({stats.bannedUsers})
+          </button>
+          <button
+            className={`filter-btn ${filter === 'admins' ? 'active' : ''}`}
+            onClick={() => setFilter('admins')}
+          >
+            🔥 Admins ({stats.admins})
+          </button>
+        </div>
       </div>
 
       {/* Users Table */}
-      <DataTable
-        columns={columns}
-        data={filteredUsers}
-        keyField="uid"
-        onRowClick={handleUserClick}
-        emptyMessage={searchTerm ? 'No users match your search' : 'No users found'}
-      />
+      <div className="users-table-body">
+        {filteredUsers.length === 0 ? (
+          <div className="users-table-empty">
+            <p>{searchTerm ? 'No users match your search' : 'No users found'}</p>
+          </div>
+        ) : (
+          <table className="users-table">
+            <thead>
+              <tr>
+                {columns.map((column) => (
+                  <th
+                    key={column.key}
+                    style={{ width: column.width }}
+                  >
+                    {column.title}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr
+                  key={user.uid}
+                  onClick={() => handleUserClick(user)}
+                  className="clickable"
+                >
+                  {columns.map((column) => (
+                    <td key={column.key} style={{ width: column.width }}>
+                      {column.render ? column.render(user) : (user as any)[column.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {/* User Details Modal */}
       <Modal
