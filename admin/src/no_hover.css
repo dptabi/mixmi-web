@@ -1,12 +1,28 @@
 /*
-  Admin-only: remove hover visual effects (no hover lift/scale/shadow/highlight).
+  Admin-only: remove hover visual effects on all buttons and interactive elements.
   Keep non-hover animations/transitions (spinner, sidebar collapse, etc.).
   Keep keyboard focus styles (:focus-visible / :focus-within) intact.
 */
 
+/* All buttons – no hover lift/scale/shadow */
+.admin-dashboard button:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* User dashboard action buttons (View, Role, Status) – no gray/default hover */
+.admin-dashboard .action-buttons button:hover,
+.admin-dashboard .users-table .btn-small:hover,
+.admin-dashboard .users-table .btn-action:hover {
+  background-color: #fff !important;
+  border-color: #000 !important;
+  color: #000 !important;
+}
+
 .admin-dashboard .filter-buttons button:hover,
 .admin-dashboard .btn-outline:hover,
 .admin-dashboard .btn-primary:hover,
+.admin-dashboard .btn-action:hover,
 .admin-dashboard .view-details-button:hover,
 .admin-dashboard .mark-paid-button:hover,
 .admin-dashboard .cancel-button:hover,
@@ -30,7 +46,7 @@
 .admin-dashboard .google-login-button:hover:not(:disabled),
 .admin-dashboard .action-btn:hover {
   transform: none !important;
-  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.9) !important;
+  box-shadow: none !important;
 }
 
 /* Sidebar nav hover highlight */
