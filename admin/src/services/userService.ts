@@ -1,4 +1,4 @@
-import { ref, onValue, update, get } from 'firebase/database';
+import { ref, onValue, update, get, goOffline, goOnline } from 'firebase/database';
 import { collection, query as firestoreQuery, where, getDocs, orderBy as firestoreOrderBy } from 'firebase/firestore';
 import { rtdb, db, auth } from '../firebase';
 import { getIdToken, getIdTokenResult } from 'firebase/auth';
@@ -148,41 +148,29 @@ export async function fetchUsers(): Promise<User[]> {
     let errorDetails = '';
 
     if (error?.code === 'PERMISSION_DENIED' || errorMessage?.toLowerCase().includes('permission denied')) {
-      // Get token info for more detailed error message
-      let tokenInfo = '';
+      let hasAdminClaim = false;
       if (currentUser) {
         try {
           const tokenResult = await getIdTokenResult(currentUser);
-          const hasAdminClaim = tokenResult.claims.admin === true ||
+          hasAdminClaim = tokenResult.claims.admin === true ||
             tokenResult.claims.role === 'admin' ||
             tokenResult.claims.role === 'superadmin';
-          
-          tokenInfo = `\n📊 Current Token Status:\n` +
-            `   - Has admin claim: ${tokenResult.claims.admin === true}\n` +
-            `   - Role claim: ${tokenResult.claims.role || 'none'}\n` +
-            `   - Valid admin access: ${hasAdminClaim}\n` +
-            `   - User UID: ${currentUser.uid}\n` +
-            `   - User email: ${currentUser.email || 'N/A'}\n`;
-        } catch (tokenErr) {
-          tokenInfo = '\n⚠️ Could not retrieve token information for debugging.\n';
+        } catch (_) {
+          /* ignore */
         }
       }
 
-      errorDetails = '❌ PERMISSION DENIED\n\n' +
-        'Your authentication token does not have admin/superadmin custom claims.\n' +
-        tokenInfo +
-        '\n🔧 TO FIX THIS:\n\n' +
-        '1. Run this command (from project root):\n' +
-        '   ./scripts/grant-superadmin.sh hey@mixmi.co\n\n' +
-        '2. Sign out completely from the admin panel (click Logout)\n\n' +
-        '3. Sign back in with your Google account\n' +
-        '   (This gets a fresh token with the updated claims)\n\n' +
-        '4. Check browser console (F12) - look for "Token claims:" logs\n' +
-        '   You should see: admin: true, role: "superadmin"\n\n' +
-        'If issue persists:\n' +
-        '- Verify database rules are deployed: firebase deploy --only database\n' +
-        '- Check console for detailed token claim information\n' +
-        '- Try clicking the "🔑 Refresh Token & Retry" button';
+      if (hasAdminClaim) {
+        errorDetails = '❌ PERMISSION DENIED (Realtime Database)\n\n' +
+          'Your token has admin claims (Orders dashboard works). The User dashboard reads from Realtime Database; its rules are likely not deployed.\n\n' +
+          '🔧 FIX: From the project root run:\n\n' +
+          '   firebase deploy --only database\n\n' +
+          'Then reload the User dashboard.';
+      } else {
+        errorDetails = '❌ PERMISSION DENIED\n\n' +
+          'Your token does not have admin/superadmin claims.\n\n' +
+          '🔧 FIX: Run ./scripts/grant-superadmin.sh <your-email>, then sign out and sign back in.';
+      }
     } else {
       errorDetails = `Failed to fetch users: ${errorMessage}\n\n` +
         `Error code: ${error?.code || 'N/A'}\n` +
@@ -199,9 +187,20 @@ export async function fetchUsers(): Promise<User[]> {
  */
 export function subscribeToUsers(callback: (users: User[]) => void): () => void {
   let unsubscribe: (() => void) | null = null;
+  let cancelled = false;
+  let retryCount = 0;
+  const maxRetries = 1;
+
+  const doUnsubscribe = () => {
+    if (unsubscribe) {
+      unsubscribe();
+      unsubscribe = null;
+    }
+  };
 
   // Refresh token and verify claims before subscribing
   const setupSubscription = async () => {
+    if (cancelled) return;
     try {
       const currentUser = auth.currentUser;
       if (!currentUser) {
@@ -210,54 +209,29 @@ export function subscribeToUsers(callback: (users: User[]) => void): () => void 
         return;
       }
 
-      // Force token refresh - this is critical for custom claims to be updated
+      // Force token refresh and reconnect RTDB so the persistent connection uses the new token
       try {
         await getIdToken(currentUser, true);
         console.log('✅ Token refreshed before subscribing to users');
-
-        // Get token result to check claims
         const tokenResult = await getIdTokenResult(currentUser, true);
-        console.log('📋 Token claims (subscription):', JSON.stringify(tokenResult.claims, null, 2));
-        console.log('🔐 Has admin claim:', tokenResult.claims.admin === true);
-        console.log('👤 Has role claim:', tokenResult.claims.role);
-
-        // Check if user has admin claims
         const hasAdminClaim = tokenResult.claims.admin === true ||
           tokenResult.claims.role === 'admin' ||
           tokenResult.claims.role === 'superadmin';
-
         if (!hasAdminClaim) {
           console.warn('⚠️ User token does not have admin claims for subscription');
-          // Still try to proceed in case database rules allow it
         }
-
-        // Verify user's role in database
-        try {
-          const userRef = ref(rtdb, `users/${currentUser.uid}`);
-          const userSnapshot = await get(userRef);
-          const userData = userSnapshot.val();
-          console.log('📊 User data from database (subscription):', userData);
-          console.log('🎭 User role in database:', userData?.role);
-
-          if (userData?.role === 'superadmin' || userData?.role === 'admin') {
-            console.log('✅ User has admin role in database (subscription)');
-          }
-        } catch (userCheckError: any) {
-          console.warn('⚠️ Could not verify user role in database (subscription):', userCheckError);
-          if (userCheckError?.code === 'PERMISSION_DENIED') {
-            console.error('❌ Permission denied when checking own user record (subscription)');
-          }
-        }
+        // Force RTDB to reconnect so the connection is authenticated with the new token
+        goOffline(rtdb);
+        goOnline(rtdb);
+        await new Promise((r) => setTimeout(r, 300));
       } catch (tokenError: any) {
         console.error('❌ Could not refresh token for subscription:', tokenError);
-        const errorDetails = 'Failed to refresh authentication token for real-time subscription. ' +
-          'Please sign out and sign back in to get a fresh token with updated claims.';
-        console.error(errorDetails);
         callback([]);
         return;
       }
 
-      // Now set up the real-time subscription
+      if (cancelled) return;
+
       const usersRef = ref(rtdb, 'users');
       console.log('🔍 Setting up real-time subscription to users...');
 
@@ -265,14 +239,11 @@ export function subscribeToUsers(callback: (users: User[]) => void): () => void 
         usersRef,
         (snapshot) => {
           if (!snapshot.exists()) {
-            console.log('No users found in Realtime Database (real-time subscription)');
             callback([]);
             return;
           }
-
           const usersData = snapshot.val();
           const users: User[] = [];
-
           Object.entries(usersData).forEach(([uid, userData]: [string, any]) => {
             users.push({
               uid,
@@ -291,49 +262,37 @@ export function subscribeToUsers(callback: (users: User[]) => void): () => void 
               bannedAt: userData.bannedAt,
             });
           });
-
           users.sort((a, b) => b.createdAt - a.createdAt);
-          console.log(`Real-time update: ${users.length} users`);
           callback(users);
         },
-        (error: any) => {
-          console.error('❌ Error in real-time users subscription:', error);
-          console.error('🔴 Error code:', error?.code);
-          console.error('📝 Error message:', error?.message);
+        async (error: any) => {
+          console.error('❌ Error in real-time users subscription:', error?.code, error?.message);
 
-          if (error?.code === 'PERMISSION_DENIED') {
-            const errorDetails = '❌ PERMISSION DENIED (Real-time Subscription)\n\n' +
-              'Your authentication token does not have admin/superadmin custom claims.\n\n' +
-              '🔧 TO FIX THIS:\n\n' +
-              '1. Run this command (from project root):\n' +
-              '   ./scripts/grant-superadmin.sh hey@mixmi.co\n\n' +
-              '2. Sign out completely from the admin panel (click Logout)\n\n' +
-              '3. Sign back in with your Google account\n' +
-              '   (This gets a fresh token with the updated claims)\n\n' +
-              '4. Check browser console (F12) - look for "Token claims:" logs\n' +
-              '   You should see: admin: true, role: "superadmin"\n\n' +
-              'If issue persists:\n' +
-              '- Verify database rules are deployed: firebase deploy --only database\n' +
-              '- Check console for detailed token claim information';
-            console.error(errorDetails);
-
-            // Get current user info for debugging
+          if (error?.code === 'PERMISSION_DENIED' && retryCount < maxRetries) {
             const currentUser = auth.currentUser;
-            if (currentUser) {
-              try {
-                getIdTokenResult(currentUser).then((tokenResult) => {
-                  console.error('🔐 Current token claims (subscription error):', JSON.stringify(tokenResult.claims, null, 2));
-                  console.error('👤 Current user UID:', currentUser.uid);
-                  console.error('📧 Current user email:', currentUser.email);
-                }).catch((tokenErr) => {
-                  console.error('⚠️ Could not get token info for debugging:', tokenErr);
-                });
-              } catch (tokenErr) {
-                console.error('⚠️ Could not get token info for debugging:', tokenErr);
-              }
+            const hasClaims = currentUser
+              ? await getIdTokenResult(currentUser).then((r) =>
+                  r.claims.admin === true || r.claims.role === 'admin' || r.claims.role === 'superadmin'
+                ).catch(() => false)
+              : false;
+            if (hasClaims) {
+              retryCount += 1;
+              console.log('🔄 Token has admin claims; forcing RTDB reconnect and retrying...');
+              doUnsubscribe();
+              await getIdToken(currentUser!, true);
+              goOffline(rtdb);
+              goOnline(rtdb);
+              await new Promise((r) => setTimeout(r, 400));
+              if (!cancelled) setupSubscription();
+              return;
             }
           }
 
+          if (error?.code === 'PERMISSION_DENIED') {
+            console.error(
+              '❌ PERMISSION DENIED at /users. Your token has admin claims (Orders work). Deploy Realtime Database rules: firebase deploy --only database'
+            );
+          }
           callback([]);
         }
       );
@@ -345,15 +304,12 @@ export function subscribeToUsers(callback: (users: User[]) => void): () => void 
     }
   };
 
-  // Start the async setup
   setupSubscription();
 
-  // Return unsubscribe function
   return () => {
-    if (unsubscribe) {
-      unsubscribe();
-      console.log('🔌 Unsubscribed from real-time users updates');
-    }
+    cancelled = true;
+    doUnsubscribe();
+    console.log('🔌 Unsubscribed from real-time users updates');
   };
 }
 

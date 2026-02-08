@@ -143,21 +143,14 @@ export default function Users() {
       // Set error state for UI display
       setError(errorMessage);
 
-      // Show a more detailed error message for permission denied
       let detailedMessage = errorMessage;
       if (errorMessage?.toLowerCase().includes('permission denied') || error?.code === 'PERMISSION_DENIED') {
-        detailedMessage = `❌ PERMISSION DENIED\n\n` +
-          `Your authentication token doesn't have admin/superadmin custom claims.\n\n` +
-          `🔧 TO FIX:\n\n` +
-          `1. Run: ./scripts/grant-superadmin.sh hey@mixmi.co\n` +
-          `2. Sign out completely (click Logout button)\n` +
-          `3. Sign back in to get a fresh token\n` +
-          `4. Check browser console (F12) for token claims\n\n` +
-          `The console will show what claims are in your current token.`;
+        if (!errorMessage?.includes('firebase deploy')) {
+          const grantEmail = currentUser?.email || 'hey@mixmi.co';
+          detailedMessage = `❌ PERMISSION DENIED\n\nYour token doesn't have admin/superadmin claims.\n\n🔧 TO FIX:\n1. Run: ./scripts/grant-superadmin.sh ${grantEmail}\n2. Sign out, then sign back in.`;
+        }
       }
-
-      // Show error with better formatting
-      alert(`Error: ${detailedMessage}\n\n💡 TIP: Open browser console (F12) and look for logs starting with:\n- "Token claims:"\n- "Has admin claim:"\n- "User role in database:"`);
+      alert(`Error: ${detailedMessage}`);
     } finally {
       setLoading(false);
     }
